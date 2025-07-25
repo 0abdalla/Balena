@@ -1,0 +1,63 @@
+<header id="admin-header" class="fixed-top">
+    <nav class="navbar navbar-expand-md navbar-light py-0">
+        <div class="container-fluid">
+            <div class="logo-menu-area d-flex align-items-center justify-content-start justify-content-lg-between gap-2 py-1">
+                <header class="login-logo cursor-pointer" (click)="goToWebsite()">
+                    <div class="img-logo-box">
+                        <img src="../../../../../public/logo-2.png" class="logo-img" loading="lazy" alt="" />
+                    </div>
+                </header>
+                <button class="hamburger hamburger--elastic shadow-lg" (click)="onCollapseExpandMenu()" [class.is-active]="isCollapseOrExpand">
+          <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+          </span>
+        </button>
+            </div>
+            <button class="navbar-toggler hamburger hamburger--elastic rounded-1 my-2" [class.is-active]="!collapsed" type="button" aria-controls="navbar-content" [attr.aria-expanded]="!collapsed" aria-label="Toggle navigation" (click)="collapsed = !collapsed">
+        <span class="hamburger-box">
+          <span class="hamburger-inner"></span>
+        </span>
+      </button>
+            <div class="navbar-collapse pt-3 pt-md-0 " [class.collapse]="collapsed" id="navbar-content">
+                <ul class="navbar-nav align-items-start align-items-md-center justify-content-md-center justify-content-start mx-auto">
+                    <div class="search-wrapper position-relative" #autoCompleteWrapper [class.active]="isSearchOpen">
+                        <div class="input-holder">
+                            <input type="text" class="search-input" #inputEle (input)="onShowAutoCompleteMenu(inputEle)" [(ngModel)]="SearchText" />
+                            <ul class="search-dropdown-autocomplete shadow-lg animate__animated animate__fadeInUp" [class.show]="showAutoCompleteMenu">
+                                <li class="dropdown-autocomplete-item cursor-pointer" *ngFor="let item of PagesList;let i = index" #autoCompleteText [routerLink]="item.pageUrl" (click)="HandleSearchEle(i,inputEle)">
+                                    {{item.name}}
+                                </li>
+                            </ul>
+                            <button class="search-icon" (click)="isSearchOpen = !isSearchOpen; showAutoCompleteMenu = false;inputEle.value = ''">
+                <span></span>
+              </button>
+                        </div>
+                        <button class="close" (click)="isSearchOpen = false; showAutoCompleteMenu = false;inputEle.value = ''"></button>
+                    </div>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item" ngbDropdown display="dynamic" placement="bottom-end">
+                        <a class="nav-link user-dropdown-link d-flex align-items-center gap-2 cursor-pointer" ngbDropdownToggle id="user-dropdown">
+                            <i class="uil uil-user"></i>
+                            <span class="navbar-brand m-0">{{UserModel?.userName}}</span>
+                        </a>
+                        <div ngbDropdownMenu aria-labelledby="user-dropdown" class="dropdown-menu border animate__animated animate__fadeInUp">
+                            <!-- <a class="cursor-pointer" ngbDropdownItem (click)="$event.preventDefault()">
+                  <i class="uil uil-edit"></i>
+                  <span class="ms-2">تعديل</span>
+                </a> -->
+                            <!-- <a class="cursor-pointer" ngbDropdownItem (click)="$event.preventDefault()">
+                  <i class="uil uil-key-skeleton"></i>
+                  <span class="ms-2">تغير كلمة المرور</span>
+                </a> -->
+                            <a class="cursor-pointer" ngbDropdownItem (click)="$event.preventDefault();Logout()">
+                                <i class="uil uil-sign-out-alt"></i>
+                                <span class="ms-2">تسجيل خروج</span>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>

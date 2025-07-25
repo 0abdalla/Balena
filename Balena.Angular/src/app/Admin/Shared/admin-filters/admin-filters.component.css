@@ -1,0 +1,9 @@
+.filter-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.fs-15 {
+    font-size: 15px;
+}

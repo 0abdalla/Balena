@@ -1,0 +1,73 @@
+<div class="row g-4">
+    <div class="col-xl-4">
+        <div class="homepage-img-box">
+            <img src="../../../../../public/logo-2.png" class="homepage-img" loading="lazy" alt="" />
+        </div>
+    </div>
+    <div class="col-xl-8">
+        <div class="home-staticts mb-3">
+            <div class="row g-3">
+                <div class="col-lg-4">
+                    <div class="staticts-card visitors position-relative d-flex flex-column gap-2 align-items-center rounded shadow-sm h-100">
+                        <div class="staticts-icon">
+                            <i class="uil uil-users-alt"></i>
+                        </div>
+                        <div class="staticts-name">الزائرين</div>
+                        <div class="staticts-number">{{StatisticsData?.visitorCount ?? 0}}</div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="staticts-card active-users position-relative d-flex flex-column gap-2 align-items-center rounded shadow-sm h-100">
+                        <div class="staticts-icon">
+                            <i class="uil uil-user-check"></i>
+                        </div>
+                        <div class="staticts-name">المستخدمين النشطين</div>
+                        <div class="staticts-number">{{StatisticsData?.activeUserCount ?? 0}}</div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="staticts-card nonactive-users position-relative d-flex flex-column gap-2 align-items-center rounded shadow-sm h-100">
+                        <div class="staticts-icon">
+                            <i class="uil uil-user-exclamation"></i>
+                        </div>
+                        <div class="staticts-name">المستخدمين غير النشطين</div>
+                        <div class="staticts-number">{{StatisticsData?.inactiveUserCount ?? 0}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="uil uil-user"></i>
+                <div>المستخدمين النشطين</div>
+            </div>
+            <div class="card-body card-body-h overflow-auto">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle table-dark table-hover border shadow-lg bg-white m-0">
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>رقم التلفون</th>
+                                <th>تاريخ الدخول</th>
+                                <th>الحالة</th>
+                                <th>الصلاحية</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of UsersData">
+                                <td>{{item.userName}}</td>
+                                <td>{{item.phoneNumber}}</td>
+                                <td>{{item?.loginDate}}</td>
+                                <td>
+                                    <div class="status-tag active" *ngIf="item.isActive">نشط</div>
+                                    <div class="status-tag inactive" *ngIf="!item.isActive">غير نشط</div>
+                                </td>
+                                <td>{{item.role}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

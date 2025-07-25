@@ -1,0 +1,46 @@
+<div class="login-wrapper">
+    <div class="login-box shadow-lg position-relative">
+        <header class="login-logo">
+            <div class="img-logo-box">
+                <img src="../../../public/logo-2.png" class="logo-img" loading="lazy" alt="" />
+            </div>
+        </header>
+        <section class="login-info pt-5">
+            <h2 class="form-title text-center mb-5 d-flex align-items-center justify-content-center">
+                <span class="form-title-text d-inline-block position-relative">تسجيل الدخول</span>
+            </h2>
+            <div class="text-danger text-center" *ngIf="ErrorMessage">{{ErrorMessage}}</div>
+            <form #LoginForm="ngForm" class="d-flex flex-column gap-4 align-items-center w-100">
+                <div class="input-box w-100">
+                    <div class="input-group pb-2 border-bottom">
+                        <input type="text" class="form-control bg-transparent border-0 text-black" name="UserName" #UserName="ngModel" [(ngModel)]="LoginModel.userName" placeholder="اسم المستخدم" required />
+                        <span class="input-group-text bg-transparent border-0 p-0">
+              <i class="fas fa-user main-color"></i>
+            </span>
+                    </div>
+                    <div *ngIf="UserName.invalid && (UserName.dirty || UserName.touched || LoginForm.submitted )" class="text-danger pt-2">
+                        <div *ngIf="UserName.errors?.required">اسم المستخدم مطلوب</div>
+                    </div>
+                </div>
+                <div class="input-box w-100">
+                    <div class="input-group pb-2 border-bottom">
+                        <input type="password" [type]="isShowPassword ? 'text' : 'password'" name="Password" #Password="ngModel" [(ngModel)]="LoginModel.password" placeholder="اسم المستخدم" minlength="4" required class="form-control bg-transparent border-0 text-black" placeholder="كلمة المرور"
+                        />
+                        <span class="input-group-text bg-transparent border-0 p-0">
+              <i class="far {{ isShowPassword ? 'fa-eye-slash' : 'fa-eye'  }} main-color cursor-pointer"
+                (click)="isShowPassword = !isShowPassword"></i>
+            </span>
+                    </div>
+                    <div *ngIf="Password.invalid && (Password.dirty || Password.touched || LoginForm.submitted )" class="text-danger pt-2">
+                        <div *ngIf="Password.errors?.required">كلمة المرور مطلوبة</div>
+                        <div *ngIf="Password.errors?.minlength">كلمة المرور لا تقل عن 4 احرف او ارقام</div>
+                    </div>
+                </div>
+                <button class="btn main-button d-flex align-items-center gap-2 mt-4" (click)="Login()" [disabled]="ButtonDisabled">
+          <i class="fas fa-sign-in-alt rotated-icon"></i>
+          <span>تسجيل دخول</span>
+        </button>
+            </form>
+        </section>
+    </div>
+</div>
