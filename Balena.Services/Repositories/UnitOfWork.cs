@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Balena.Interfaces.Repositories;
+using Balena.Entities.Models;
 
 namespace Balena.Services.Repositories
 {

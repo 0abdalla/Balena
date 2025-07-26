@@ -1,4 +1,5 @@
-﻿using Balena.Entities.Specifications;
+﻿using Balena.Entities.Models;
+using Balena.Entities.Specifications;
 using Balena.Interfaces.Repositories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;

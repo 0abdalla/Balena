@@ -1,4 +1,5 @@
 ﻿using Balena.Entities.Auth;
+using Balena.Entities.Models;
 using Balena.Interfaces.Auth;
 using Balena.Interfaces.Common;
 using Balena.Interfaces.Repositories;
@@ -22,7 +23,7 @@ namespace Balena.DI
 
             services.Configure<AppSettings>(configuration);
             services.AddSingleton<IAppSettings>(sp => sp.GetRequiredService<IOptions<AppSettings>>().Value);
-            services.AddDbContext<ZADbContext>((serviceProvider, options) =>
+            services.AddDbContext<BADbContext>((serviceProvider, options) =>
             {
                 var appSettings = serviceProvider.GetRequiredService<IAppSettings>();
                 options.UseSqlServer(appSettings.ConnectionStrings.DBConnection);
@@ -60,7 +61,7 @@ namespace Balena.DI
             services.AddSingleton<IJwtProvider, JwtProvider>();
 
             services.AddIdentity<AdminUser, IdentityRole>()
-                .AddEntityFrameworkStores<ZADbContext>()
+                .AddEntityFrameworkStores<BADbContext>()
                 .AddDefaultTokenProviders();
 
             services.AddAuthentication(options =>

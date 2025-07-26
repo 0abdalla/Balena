@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Balena.Services.Auth
 {
-    public class AuthService
+    public class AuthService: IAuthService
     {
         private readonly UserManager<AdminUser> _userManager;
         private readonly SignInManager<AdminUser> _signInManager;
