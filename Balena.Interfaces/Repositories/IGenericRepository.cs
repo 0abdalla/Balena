@@ -30,5 +30,7 @@ namespace Balena.Interfaces.Repositories
         Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
         Task<bool> AnyAsync(CancellationToken cancellationToken = default);
         Task<TResult> MaxAsync<TResult>(Expression<Func<T, TResult>> selector, CancellationToken cancellationToken = default);
+        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
+
     }
 }
