@@ -2,9 +2,11 @@
 {
     public class OrderWithDetailsDto
     {
-        public int CustomerID { get; set; }
+        public int? OrderId { get; set; }
+        public int? CustomerID { get; set; }
         public decimal TotalAmount { get; set; }
         public string PaymentMethod { get; set; }
+        public string? UserId { get; set; }
         public List<OrderDetailDto> Details { get; set; }
     }
 

@@ -32,21 +32,40 @@
             </ul>
             <div>
                 <hr>
-                <div class="side-menu-list-title side-menu-text">الموارد</div>
+                <div class="side-menu-list-title side-menu-text">النظام</div>
                 <ul class="side-menu-list list-unstyled p-0 m-0">
                     <li class="side-menu-list-item">
                         <a class="side-menu-list-link with-sub-menu" [class.expanded]="isCollapsed_1" (click)="collapse.toggle()" [attr.aria-expanded]="!isCollapsed_1">
                             <i class="uil uil-setting"></i>
-                            <span class="side-menu-text">المنتجات</span>
+                            <span class="side-menu-text">إدارة النظام</span>
                         </a>
                     </li>
                     <ul class="list-unstyled m-0 menu-list-collapsed" #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed_1">
-                        <li>
+                        <!-- <li>
                             <a class="side-menu-list-link sub-link" routerLink="./all-pages-design" routerLinkActive="active">
                                 <i class="uil uil-sliders-v-alt"></i>
                                 <span class="side-menu-text">الديزاين</span>
                             </a>
+                        </li> -->
+                        <li>
+                            <a class="side-menu-list-link sub-link" routerLink="./categories" routerLinkActive="active">
+                                <i class="uil uil-sliders-v-alt"></i>
+                                <span class="side-menu-text">الفئات</span>
+                            </a>
                         </li>
+                        <li>
+                            <a class="side-menu-list-link sub-link" routerLink="./items" routerLinkActive="active">
+                                <i class="uil uil-sliders-v-alt"></i>
+                                <span class="side-menu-text">العناصر</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="side-menu-list-link sub-link" routerLink="./create-order" routerLinkActive="active">
+                                <i class="uil uil-sliders-v-alt"></i>
+                                <span class="side-menu-text">الطلبات</span>
+                            </a>
+                        </li>
+
                         <!-- <li>
                             <a class="side-menu-list-link sub-link" routerLink="./activity" routerLinkActive="active">
                                 <i class="uil uil-sliders-v-alt"></i>
@@ -200,22 +219,22 @@
                     </ul>
                 </ul>
             </div> -->
-            <div>
+            <div appRoleChecker [roles]="['SupperAdmin']">
                 <hr>
                 <div class="side-menu-list-title side-menu-text">الاعدادات</div>
                 <ul class="side-menu-list list-unstyled p-0 m-0">
                     <li>
-                        <a class="side-menu-list-link sub-link" routerLink="./user" routerLinkActive="active">
+                        <a class="side-menu-list-link sub-link" routerLink="./create-user" routerLinkActive="active">
                             <i class="uil uil-sliders-v-alt"></i>
                             <span class="side-menu-text">المستخدمين</span>
                         </a>
                     </li>
-                    <li>
+                    <!-- <li>
                         <a class="side-menu-list-link sub-link" routerLink="./backup" routerLinkActive="active">
                             <i class="uil uil-sliders-v-alt"></i>
                             <span class="side-menu-text">النسخ الاحتياطية</span>
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
         </div>

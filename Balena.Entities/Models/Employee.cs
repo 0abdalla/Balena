@@ -19,5 +19,5 @@ public partial class Employee
 
     public decimal? Salary { get; set; }
 
-    public ICollection<Order> Orders { get; set; } = new List<Order>();
+    //public ICollection<Order> Orders { get; set; } = new List<Order>();
 }

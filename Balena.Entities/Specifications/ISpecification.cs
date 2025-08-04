@@ -11,6 +11,7 @@ namespace Balena.Entities.Specifications
     {
         public Expression<Func<T, bool>> Criteria { get; }
         public List<Expression<Func<T, object>>> Includes { get; set; }
+        List<string> IncludeStrings { get; }
         public Expression<Func<T, object>>? OrderBy { get; set; }
         public Expression<Func<T, object>>? OrderByDescending { get; set; }
         public int Skip { get; set; }

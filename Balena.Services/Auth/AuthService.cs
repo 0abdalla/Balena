@@ -1,11 +1,14 @@
 ﻿using Balena.Entities.Auth;
 using Balena.Entities.Common;
+using Balena.Entities.Models;
 using Balena.Interfaces.Auth;
 using Balena.Interfaces.Common;
+using Balena.Interfaces.Repositories;
 using Balena.Services.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -16,27 +19,29 @@ using System.Threading.Tasks;
 
 namespace Balena.Services.Auth
 {
-    public class AuthService: IAuthService
+    public class AuthService : IAuthService
     {
         private readonly UserManager<AdminUser> _userManager;
         private readonly SignInManager<AdminUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ISQLHelper _sQLHelper;
         private readonly IJwtProvider _jwtProvider;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthService(UserManager<AdminUser> userManager, SignInManager<AdminUser> signInManager, RoleManager<IdentityRole> roleManager, IJwtProvider jwtProvider, ISQLHelper sQLHelper)
+        public AuthService(UserManager<AdminUser> userManager, SignInManager<AdminUser> signInManager, RoleManager<IdentityRole> roleManager, IJwtProvider jwtProvider, ISQLHelper sQLHelper, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _jwtProvider = jwtProvider;
             _sQLHelper = sQLHelper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<DataTable> GetAllUsers()
         {
             var Params = new SqlParameter[0];
-            var dt = await _sQLHelper.ExecuteDataTableAsync("web.SP_GetAllUsersData", Params);
+            var dt = await _sQLHelper.ExecuteDataTableAsync("dbo.SP_GetAllUsersData", Params);
             return dt;
         }
 
@@ -216,15 +221,18 @@ namespace Balena.Services.Auth
             return addResult.Succeeded;
         }
 
-        //public StatisticsHomeModel GetStatisticsHome()
-        //{
-        //    var StatisticsModel = new StatisticsHomeModel();
-        //    var VisitorCount = _context.WebSiteVisitors.Count();
-        //    var User = _context.Users.ToList();
-        //    StatisticsModel.VisitorCount = VisitorCount;
-        //    StatisticsModel.ActiveUserCount = User.Where(i => i.IsActive).Count();
-        //    StatisticsModel.InactiveUserCount = User.Where(i => !i.IsActive).Count();
-        //    return StatisticsModel;
-        //}
+        public async Task<object> GetStatisticsHome()
+        {
+            var OrdersCount = await _unitOfWork.Repository<Order>().CountAsync();
+            var User = await _userManager.Users.ToListAsync();
+            var StatisticsHomeCard = new
+            {
+                ActiveUserCount = User.Where(i => i.IsActive).Count(),
+                InactiveUserCount = User.Where(i => !i.IsActive).Count(),
+                OrdersCount = OrdersCount
+            };
+
+            return StatisticsHomeCard;
+        }
     }
 }

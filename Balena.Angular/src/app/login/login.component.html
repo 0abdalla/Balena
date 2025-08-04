@@ -24,7 +24,7 @@
                 </div>
                 <div class="input-box w-100">
                     <div class="input-group pb-2 border-bottom">
-                        <input type="password" [type]="isShowPassword ? 'text' : 'password'" name="Password" #Password="ngModel" [(ngModel)]="LoginModel.password" placeholder="اسم المستخدم" minlength="4" required class="form-control bg-transparent border-0 text-black" placeholder="كلمة المرور"
+                        <input type="password" [type]="isShowPassword ? 'text' : 'password'" name="Password" #Password="ngModel" [(ngModel)]="LoginModel.password" placeholder="اسم المستخدم" required class="form-control bg-transparent border-0 text-black" placeholder="كلمة المرور"
                         />
                         <span class="input-group-text bg-transparent border-0 p-0">
               <i class="far {{ isShowPassword ? 'fa-eye-slash' : 'fa-eye'  }} main-color cursor-pointer"
@@ -33,7 +33,6 @@
                     </div>
                     <div *ngIf="Password.invalid && (Password.dirty || Password.touched || LoginForm.submitted )" class="text-danger pt-2">
                         <div *ngIf="Password.errors?.required">كلمة المرور مطلوبة</div>
-                        <div *ngIf="Password.errors?.minlength">كلمة المرور لا تقل عن 4 احرف او ارقام</div>
                     </div>
                 </div>
                 <button class="btn main-button d-flex align-items-center gap-2 mt-4" (click)="Login()" [disabled]="ButtonDisabled">

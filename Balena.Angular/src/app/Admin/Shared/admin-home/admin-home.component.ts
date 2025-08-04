@@ -1,5 +1,6 @@
 import { NgFor, NgForOf } from '@angular/common';
 import { Component } from '@angular/core';
+import { AdminService } from '../../Services/admin.service';
 
 @Component({
   selector: 'app-admin-home',
@@ -12,39 +13,35 @@ export class AdminHomeComponent {
 UsersData: any[] = [];
   Roles = [
     { nameEn: 'SupperAdmin', nameAr: 'مدير' },
-    { nameEn: 'WebSite', nameAr: 'موقع زائر الخير' },
-    { nameEn: 'Services', nameAr: 'خدمات اجتماعية' },
-    { nameEn: 'BeneFactors', nameAr: 'متبرعين' },
-    { nameEn: 'Accounts', nameAr: 'حسابات' },
-    { nameEn: 'Admin', nameAr: 'مشرف' }
+    { nameEn: 'Admin', nameAr: 'موظف' }
   ];
   StatisticsData: any;
   TotalCount = 0;
 
-  constructor() {
+  constructor(private adminService:AdminService) {
 
   }
 
   ngOnInit(): void {
-    // this.GetStatisticsHome();
-    // this.GetAllUsers();
+    this.GetStatisticsHome();
+    this.GetAllUsers();
   }
 
-  // GetStatisticsHome() {
-  //   this.adminService.GetStatisticsHome().subscribe(data => {
-  //     this.StatisticsData = data;
-  //   })
-  // }
+  GetStatisticsHome() {
+    this.adminService.GetStatisticsHome().subscribe(data => {
+      this.StatisticsData = data;
+    })
+  }
 
-  // GetAllUsers() {
-  //   this.adminService.GetAllUsers().subscribe(data => {
-  //     this.UsersData = data.filter(i => i.isActive);
-  //     this.UsersData.forEach(item => {
-  //       let role = this.Roles.find(i => i.nameEn == item.role);
-  //       if (role)
-  //         item.role = role.nameAr;
-  //     });
-  //     this.TotalCount = this.UsersData.length;
-  //   })
-  // }
+  GetAllUsers() {
+    this.adminService.GetAllUsers().subscribe(data => {
+      this.UsersData = data.filter(i => i.isActive);
+      this.UsersData.forEach(item => {
+        let role = this.Roles.find(i => i.nameEn == item.role);
+        if (role)
+          item.role = role.nameAr;
+      });
+      this.TotalCount = this.UsersData.length;
+    })
+  }
 }

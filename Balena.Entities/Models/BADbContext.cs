@@ -2,11 +2,13 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using Balena.Entities.Auth;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Balena.Entities.Models;
 
-public partial class BADbContext : DbContext
+public partial class BADbContext : IdentityDbContext<AdminUser>
 {
     public BADbContext(DbContextOptions<BADbContext> options)
         : base(options)
@@ -116,9 +118,9 @@ public partial class BADbContext : DbContext
                 .HasForeignKey(d => d.CustomerId)
                 .HasConstraintName("FK__Orders__Customer__4316F928");
 
-            entity.HasOne(d => d.Employee).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__Orders__Employee__440B1D61");
+            //entity.HasOne(d => d.Employee).WithMany(p => p.Orders)
+            //    .HasForeignKey(d => d.EmployeeId)
+            //    .HasConstraintName("FK__Orders__Employee__440B1D61");
         });
 
         modelBuilder.Entity<OrderDetail>(entity =>
@@ -195,6 +197,8 @@ public partial class BADbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
         });
+
+        base.OnModelCreating(modelBuilder);
 
         OnModelCreatingPartial(modelBuilder);
     }

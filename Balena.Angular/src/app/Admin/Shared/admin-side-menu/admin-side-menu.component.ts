@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
+import { RoleCheckerDirective } from '../../Directives/role-checker.directive';
 
 @Component({
   selector: 'app-admin-side-menu',
-  imports: [NgbCollapseModule,RouterLink],
+  imports: [NgbCollapseModule,RouterLink,RoleCheckerDirective],
   templateUrl: './admin-side-menu.component.html',
   styleUrl: './admin-side-menu.component.css'
 })
