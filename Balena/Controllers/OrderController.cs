@@ -108,7 +108,7 @@ namespace Balena.Controllers
                 var order = new Order
                 {
                     CustomerId = dto.CustomerID,
-                    EmployeeId = dto.UserId,
+                    //EmployeeId = dto.UserId,
                     OrderDate = DateTime.UtcNow,
                     TotalAmount = dto.TotalAmount,
                     PaymentMethod = dto.PaymentMethod,

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { PagingFilterModel } from '../Models/General/PagingFilterModel';
 
 @Injectable({
@@ -17,7 +17,10 @@ export class AdminService {
   }
 
   AddNewCategory(Model: any) {
-    return this.http.post<any>(this.apiURL + 'Category/AddNewCategory', Model);
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json; charset=utf-8'
+    });
+    return this.http.post<any>(this.apiURL + 'Category/AddNewCategory', Model, { headers });
   }
 
   UpdateCategory(Model: any) {
