@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Balena.Entities.Models;
 
@@ -12,10 +13,12 @@ public partial class Product
     public string ProductName { get; set; }
 
     public int? CategoryId { get; set; }
-
     public decimal Price { get; set; }
 
     public string Description { get; set; }
+
+    [NotMapped]
+    public string CategoryName { get; set; }
 
     public virtual Category Category { get; set; }
 

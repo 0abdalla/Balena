@@ -11,7 +11,8 @@ public partial class Order
 
     public int? CustomerId { get; set; }
 
-    public int? EmployeeId { get; set; }
+    public string? EmployeeId { get; set; }
+    public int OrderNumber { get; set; }
 
     public DateTime? OrderDate { get; set; }
 
@@ -21,7 +22,7 @@ public partial class Order
 
     public Customer Customer { get; set; }
 
-    public Employee Employee { get; set; }
+    //public Employee Employee { get; set; }
 
     public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 }

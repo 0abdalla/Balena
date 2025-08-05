@@ -14,6 +14,7 @@ namespace Balena.Entities.Specifications
 
         public Expression<Func<T, bool>> Criteria => _criteria;
         public List<Expression<Func<T, object>>> Includes { get; set; } = new();
+        public List<string> IncludeStrings { get; } = new();
         public Expression<Func<T, object>> OrderBy { get; set; }
         public Expression<Func<T, object>> OrderByDescending { get; set; }
         public int Skip { get; set; }
@@ -32,6 +33,12 @@ namespace Balena.Entities.Specifications
         protected void AddCriteria(Expression<Func<T, bool>> newCriteria)
         {
             _criteria.And(newCriteria);
+        }
+        
+
+        protected void AddInclude(string includeString)
+        {
+            IncludeStrings.Add(includeString);
         }
 
         protected void AddInclude(Expression<Func<T, object>> include)

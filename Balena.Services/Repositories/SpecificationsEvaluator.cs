@@ -32,6 +32,9 @@ namespace Balena.Services.Repositories
             if (spec.Includes != null)
                 query = spec.Includes.Aggregate(query, (currentQuery, includeExpression) => currentQuery.Include(includeExpression));
 
+            if (spec.IncludeStrings != null)
+                query = spec.IncludeStrings.Aggregate(query, (current, include) => current.Include(include));
+
 
             return query;
         }

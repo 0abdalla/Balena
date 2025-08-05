@@ -2,11 +2,13 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using Balena.Entities.Auth;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Balena.Entities.Models;
 
-public partial class BADbContext : DbContext
+public partial class BADbContext : IdentityDbContext<AdminUser>
 {
     public BADbContext(DbContextOptions<BADbContext> options)
         : base(options)
@@ -39,7 +41,7 @@ public partial class BADbContext : DbContext
             entity.Property(e => e.CategoryName)
                 .IsRequired()
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
         });
 
         modelBuilder.Entity<Customer>(entity =>
@@ -49,15 +51,15 @@ public partial class BADbContext : DbContext
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.FullName)
                 .IsRequired()
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.JoinDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Phone)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
         });
 
         modelBuilder.Entity<Employee>(entity =>
@@ -68,14 +70,14 @@ public partial class BADbContext : DbContext
             entity.Property(e => e.FullName)
                 .IsRequired()
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.HireDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Phone)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Role)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Salary).HasColumnType("decimal(10, 2)");
         });
 
@@ -103,22 +105,22 @@ public partial class BADbContext : DbContext
 
             entity.Property(e => e.OrderId).HasColumnName("OrderID");
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
-            entity.Property(e => e.EmployeeId).HasColumnName("EmployeeID");
+            //entity.Property(e => e.EmployeeId).HasColumnName("EmployeeID");
             entity.Property(e => e.OrderDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.PaymentMethod)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(10, 2)");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.CustomerId)
                 .HasConstraintName("FK__Orders__Customer__4316F928");
 
-            entity.HasOne(d => d.Employee).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__Orders__Employee__440B1D61");
+            //entity.HasOne(d => d.Employee).WithMany(p => p.Orders)
+            //    .HasForeignKey(d => d.EmployeeId)
+            //    .HasConstraintName("FK__Orders__Employee__440B1D61");
         });
 
         modelBuilder.Entity<OrderDetail>(entity =>
@@ -150,7 +152,7 @@ public partial class BADbContext : DbContext
             entity.Property(e => e.ProductName)
                 .IsRequired()
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
@@ -183,18 +185,20 @@ public partial class BADbContext : DbContext
             entity.Property(e => e.SupplierId).HasColumnName("SupplierID");
             entity.Property(e => e.ContactName)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Phone)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.SupplierName)
                 .IsRequired()
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
         });
+
+        base.OnModelCreating(modelBuilder);
 
         OnModelCreatingPartial(modelBuilder);
     }

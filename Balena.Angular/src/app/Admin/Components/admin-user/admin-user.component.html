@@ -1,0 +1,186 @@
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between gap-2">
+        <div class="d-flex align-items-center">
+            <i class="uil uil-user"></i>
+            <div class="ms-1">المشرف</div>
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <button class="btn main-button d-flex align-items-center gap-2 ms-3" (click)="openAddUserModal(AddUserModal,null)">
+          <i class="uil uil-plus-circle"></i>
+          <span class="navbar-brand m-0">اضافه</span>
+        </button>
+            </div>
+        </div>
+        <div>
+            <app-admin-pagination [currentPage]="1" [pageSize]="10" [totalPages]="0" [totalCount]="TotalCount"></app-admin-pagination>
+        </div>
+    </div>
+    <div class="card-body card-body-h">
+        <div class="table-responsive mb-2">
+            <table class="table table-bordered align-middle table-dark table-hover border shadow-lg bg-white m-0">
+                <thead>
+                    <tr>
+                        <th>الاسم</th>
+                        <th>البريد الالكترونى</th>
+                        <th>رقم التلفون</th>
+                        <th>العنوان</th>
+                        <th>تاريخ الدخول</th>
+                        <th>الحالة</th>
+                        <th>الصلاحية</th>
+                        <th class="text-center">أجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of UsersData">
+                        <td>{{item.userName}}</td>
+                        <td>{{item.email}}</td>
+                        <td>{{item.phoneNumber}}</td>
+                        <td>{{item?.address}}</td>
+                        <td>{{item?.loginDate}}</td>
+                        <td>
+                            <div class="status-tag active" *ngIf="item.isActive">نشط</div>
+                            <div class="status-tag inactive" *ngIf="!item.isActive">غير نشط</div>
+                        </td>
+                        <td>{{item.roleNameAr}}</td>
+                        <td>
+                            <div class="d-flex align-items-center justify-content-center fs-5 gap-2">
+                                <i class="uil uil-edit text-primary icon-table-action shadow-sm" (click)="openAddUserModal(AddUserModal,item)"></i>
+                                <i class="uil uil-times-circle text-danger icon-table-action shadow-sm" (click)="openDeleteUserModal(deleteUserModal,item.userId)"></i>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #AddUserModal let-modal>
+    <div class="modal-header d-flex align-items-center justify-content-between main-bgcolor text-white">
+        <div class="display-7 d-flex align-items-center gap-3">
+            <i class="uil uil-focus-add"></i>
+            <span>اضافه مستخدم جديد</span>
+        </div>
+        <i class="fas fa-times cursor-pointer fa-2x modal-close-btn" (click)="modal.dismiss()"></i>
+    </div>
+    <div class="modal-body gray-bgcolor">
+        <div class="bg-white p-3 rounded shadow-sm">
+            <form [formGroup]="ItemForm" autocomplete="off">
+                <div class="row g-3">
+                    <div class="col-lg-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInput_1" placeholder="new-user" formControlName="userName" required>
+                            <label for="floatingInput_1">اسم المستخدم</label>
+                        </div>
+                        <div *ngIf="ItemForm.controls['userName']?.invalid && (ItemForm.controls['userName']?.dirty || ItemForm.controls['userName']?.touched)" class="text-danger pt-2">
+                            <div *ngIf="ItemForm.controls['userName'].errors?.['required']">
+                                هذا الحقل مطلوب
+                            </div>
+                            <div *ngIf="ItemForm.controls['userName'].errors?.['pattern']">
+                                أدخل أحرف انكليزية فقط
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInput_1" placeholder="new-user" formControlName="email" required>
+                            <label for="floatingInput_1">البريد الالكتروني</label>
+                        </div>
+                        <div *ngIf="ItemForm.controls['email']?.invalid && (ItemForm.controls['email']?.dirty || ItemForm.controls['email']?.touched)" class="text-danger pt-2">
+                            <div *ngIf="ItemForm.controls['email'].errors?.['required']">
+                                هذا الحقل مطلوب
+                            </div>
+                            <div *ngIf="ItemForm.controls['email'].errors?.['pattern']">
+                                البريد الالكتروني غير صالح
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" (keypress)="NumbersOnly($event.key)" id="floatingInput_1" placeholder="new-user" formControlName="phoneNumber" required>
+                            <label for="floatingInput_1">رقم التلفون</label>
+                        </div>
+                        <div *ngIf="ItemForm.controls['phoneNumber']?.invalid && (ItemForm.controls['phoneNumber']?.dirty || ItemForm.controls['phoneNumber']?.touched)" class="text-danger pt-2">
+                            <div *ngIf="ItemForm.controls['phoneNumber'].errors?.['required']">
+                                هذا الحقل مطلوب
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInput_1" placeholder="new-user" formControlName="password">
+                            <label for="floatingInput_1">كلمة المرور</label>
+                        </div>
+                        <div *ngIf="ItemForm.controls['password']?.invalid && (ItemForm.controls['password']?.dirty || ItemForm.controls['password']?.touched)" class="text-danger pt-2">
+                            <div *ngIf="ItemForm.controls['password'].errors?.['required']">
+                                هذا الحقل مطلوب
+                            </div>
+                            <div *ngIf="ItemForm.controls['password'].errors?.['pattern']">
+                                يجب أن تحتوي كلمة المرور على الأقل على: حرف كبير، حرف صغير، رقم، ورمز خاص (مثل $ أو !)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInput_1" placeholder="new-user" formControlName="address" required>
+                            <label for="floatingInput_1">عنوان المستخدم</label>
+                        </div>
+                        <div *ngIf="ItemForm.controls['address']?.invalid && (ItemForm.controls['address']?.dirty || ItemForm.controls['address']?.touched)" class="text-danger pt-2">
+                            <div *ngIf="ItemForm.controls['address'].errors?.['required']">
+                                هذا الحقل مطلوب
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div ngbDropdown class="dropdown-with-search overflow-hidden" container="body">
+                            <button class="dropdown-with-search-btn btn border h-58 w-100 d-flex align-items-center justify-content-between selector-padding" id="dropdownBasic1" ngbDropdownToggle>
+                {{RoleNameAr}}
+              </button>
+                            <div class="width-530 py-0 overflow-hidden dropdown-fitting" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                                <ul class="dropdown-list-box list-unstyled max-height-220 overflow-auto px-1 py-1 m-0">
+                                    <ng-container *ngFor="let role of Roles">
+                                        <li class="dropdown-item cursor-pointer rounded" (click)="RoleChange(role)" [ngClass]="{'DropDownSelected': RoleNameAr == role.nameAr}">{{role.nameAr}}</li>
+                                    </ng-container>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="text-danger pt-2" *ngIf="RoleValidation">
+                            هذا الحقل مطلوب
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer justify-content-start gap-2">
+        <button class="btn main-button d-flex align-items-center gap-2" (click)="AddNewUser()">
+      <i class="uil uil-plus-circle"></i>
+      <span>اضافه</span>
+    </button>
+        <button class="btn btn-danger rounded-25 d-flex align-items-center gap-2" (click)="modal.close()">
+      <i class="uil uil-times-circle"></i>
+      <span>الغاء</span>
+    </button>
+    </div>
+</ng-template>
+
+<ng-template #deleteUserModal let-modal>
+    <div class="modal-header main-bgcolor text-white">
+        <div class="display-7 d-flex align-items-center gap-3">
+            <i class="uil uil-trash-alt"></i>
+            <span>حذف مستخدم</span>
+        </div>
+    </div>
+    <div class="modal-body">
+        <p class="fs-5 m-0">هل انت متأكد أنك تريد حذف هذا العنصر</p>
+    </div>
+    <div class="modal-footer justify-content-start">
+        <button type="button" class="btn btn-success" (click)="DeleteUser()">
+      <i class="fas fa-check"></i>
+      <span class="ms-2">نعم</span>
+    </button>
+        <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">
+      <i class="fas fa-times"></i>
+      <span class="ms-2">لا</span>
+    </button>
+    </div>
+</ng-template>

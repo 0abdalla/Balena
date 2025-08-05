@@ -29,11 +29,11 @@ export class LoginComponent {
     this.ButtonDisabled = true;
     this.authService.AdminLogin(this.LoginModel).subscribe(data => {
       this.ButtonDisabled = false;
-      if (data.responseCode == 200) {
-        localStorage.setItem('UserModel', JSON.stringify(data));
+      if (data.isSuccess) {
+        localStorage.setItem('UserModel', JSON.stringify(data.results));
         this.router.navigateByUrl('/admin');
       } else
-        this.ErrorMessage = data.responseMessage;
+        this.ErrorMessage = data.message;
     });
   }
 }

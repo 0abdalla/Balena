@@ -1,0 +1,238 @@
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <button class="btn main-button d-flex align-items-center gap-2" (click)="openAddItemModal(OpenItemModal,null)">
+                <i class="uil uil-plus-circle"></i>
+                <span class="navbar-brand m-0">اضافة</span>
+            </button>
+            <button class="btn main-button d-flex align-items-center gap-2" (click)="isFilter = !isFilter" [attr.aria-expanded]="!isFilter">
+                <i class="uil uil-filter"></i>
+                <span class="navbar-brand m-0">{{ isFilter ? 'عرض' : 'اخفاء' }} الفلاتر</span>
+            </button>
+        </div>
+        <div>
+            <app-admin-pagination [currentPage]="PagingFilter.currentpage" [pageSize]="PagingFilter.pagesize" [totalPages]="0" [totalCount]="Total" (pageChanged)="PageChange($event)"></app-admin-pagination>
+        </div>
+    </div>
+    <div class="px-3 py-2 bg-light border-bottom" #collapse="ngbCollapse" [(ngbCollapse)]="isFilter">
+        <app-admin-filters [PlaceHolder]="'برقم الطلب'" (FilterChecked)="FilterChecked($event)"></app-admin-filters>
+    </div>
+    <div class="card-body card-body-h">
+        <div class="table-responsive mb-2">
+            <table class="table table-bordered align-middle table-dark table-hover border shadow-lg bg-white m-0">
+                <thead>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <th>تاريخ الطلب</th>
+                        <th>الإجمالي</th>
+                        <th>نوع الدفع</th>
+                        <th class="text-center">أجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of Results">
+                        <td>{{item.orderNumber}}</td>
+                        <td>{{item.orderDate | date:'dd/MM/yyyy, h:mm a'}}</td>
+                        <td>{{item.totalAmount}} جنيه</td>
+                        <td>كاش</td>
+                        <td>
+                            <div class="d-flex align-items-center justify-content-center fs-5 gap-2">
+                                <i class="uil uil-edit text-primary icon-table-action shadow-sm" appRoleChecker [roles]="['SupperAdmin']" (click)="openAddItemModal(OpenItemModal,item)"></i>
+                                <i class="uil uil-times-circle text-danger icon-table-action shadow-sm" appRoleChecker [roles]="['SupperAdmin']" (click)="openDeleteItemModal(deleteItemModal,item)"></i>
+                                <i class="uil uil-document-info text-success icon-table-action shadow-sm" (click)="openSidePanel(SidePanel,item)"></i>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <app-admin-pagination (pageChanged)="PagingFilter.currentpage = $event.page" [currentPage]="PagingFilter.currentpage" [pageSize]="PagingFilter.pagesize" [totalPages]="0" [totalCount]="Total"></app-admin-pagination>
+        </div>
+    </div>
+</div>
+
+
+<ng-template #OpenItemModal let-modal>
+    <div class="modal-header d-flex align-items-center justify-content-between main-bgcolor text-white">
+        <div class="display-7 d-flex align-items-center gap-3">
+            <i class="uil uil-focus-add"></i>
+            <span>املأ البيانات التالية</span>
+        </div>
+        <i class="fas fa-times cursor-pointer fa-2x modal-close-btn" (click)="modal.dismiss()"></i>
+    </div>
+    <div class="modal-body gray-bgcolor">
+        <div class="bg-white p-3 rounded shadow-sm">
+            <form [formGroup]="ItemForm" autocomplete="off">
+                <div class="row g-3">
+                    <div class="col-lg-6">
+                        <div ngbDropdown class="dropdown-with-search overflow-hidden" container="body">
+                            <button class="dropdown-with-search-btn btn border h-58 w-100 d-flex align-items-center justify-content-between selector-padding" id="dropdownBasic1" ngbDropdownToggle>
+                                {{CategoryName}}
+                            </button>
+                            <div class="width-530 py-0 overflow-hidden dropdown-fitting" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                                <ul class="dropdown-list-box list-unstyled max-height-220 overflow-auto px-1 py-1 m-0">
+                                    <ng-container *ngFor="let item of Categories">
+                                        <li class="dropdown-item cursor-pointer rounded" [ngClass]="{'DropDownSelected': CategoryName == item.categoryName}" (click)="onCategoryClicked(item)">{{item.categoryName}}</li>
+                                    </ng-container>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="text-danger pt-2" *ngIf="CategoryValidation">
+                            هذا الحقل مطلوب
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div ngbDropdown class="dropdown-with-search overflow-hidden" container="body">
+                            <button class="dropdown-with-search-btn btn border h-58 w-100 d-flex align-items-center justify-content-between selector-padding" id="dropdownBasic1" ngbDropdownToggle>
+                                {{ProductName}}
+                            </button>
+                            <div class="width-530 py-0 overflow-hidden dropdown-fitting" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                                <ul class="dropdown-list-box list-unstyled max-height-220 overflow-auto px-1 py-1 m-0">
+                                    <ng-container *ngFor="let item of Products">
+                                        <li class="dropdown-item cursor-pointer rounded" [ngClass]="{'DropDownSelected': ProductName == item.productName}" (click)="onProductClicked(item)">{{item.productName}}</li>
+                                    </ng-container>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="text-danger pt-2" *ngIf="ProductValidation">
+                            هذا الحقل مطلوب
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-floating">
+                            <input type="number" class="form-control" formControlName="quantity" id="floatingInput_1" placeholder="new-user" required>
+                            <label for="floatingInput_1">الكمية</label>
+                            <div *ngIf="ItemForm.controls['quantity']?.invalid && (ItemForm.controls['quantity']?.dirty || ItemForm.controls['quantity']?.touched)" class="text-danger pt-2">
+                                <div *ngIf="ItemForm.controls['quantity'].errors?.['required']">
+                                    هذا الحقل مطلوب
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <button class="btn btn-primary mt-2" (click)="AddNewItem()">اضافة</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <hr>
+        <div class="card-body card-body-h">
+            <div class="table-responsive mb-2">
+                <table class="table table-bordered align-middle table-dark table-hover border shadow-lg bg-white m-0">
+                    <thead>
+                        <tr>
+                            <th>العنصر</th>
+                            <th>الفئة</th>
+                            <th>الكمية</th>
+                            <th>السعر</th>
+                            <th>الإجمالي</th>
+                            <th class="text-center">أجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of SelectedProducts;let i = index">
+                            <td>{{item.productName}}</td>
+                            <td>{{item.categoryName}}</td>
+                            <td>{{item.quantity}}</td>
+                            <td>{{item.price}}</td>
+                            <td>{{item.totalValue}} جنيه</td>
+                            <td>
+                                <div class="d-flex align-items-center justify-content-center fs-5 gap-2">
+                                    <i class="uil uil-times-circle text-danger icon-table-action shadow-sm" (click)="RemoveItem(i)"></i>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot *ngIf="SelectedProducts.length > 0">
+                        <tr>
+                            <td class="text-end fw-bold">الإجمالي: </td>
+                            <td colspan="5" class="fw-bold">{{TotalValue}} جنيه</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer justify-content-start gap-2">
+        <button type="submit" class="btn main-button d-flex align-items-center gap-2" (click)="AddNewOrder()">
+            <i class="uil uil-plus-circle"></i>
+            <span>اضافه</span>
+        </button>
+        <button class="btn btn-danger rounded-25 d-flex align-items-center gap-2" (click)="modal.close()">
+            <i class="uil uil-times-circle"></i>
+            <span>الغاء</span>
+        </button>
+    </div>
+</ng-template>
+
+<ng-template #deleteItemModal let-modal>
+    <div class="modal-header main-bgcolor text-white">
+        <div class="display-7 d-flex align-items-center gap-3">
+            <i class="uil uil-trash-alt"></i>
+            <span>حذف عنصر</span>
+        </div>
+    </div>
+    <div class="modal-body">
+        <p class="fs-5 m-0">هل انت متأكد أنك تريد حذف هذا العنصر</p>
+    </div>
+    <div class="modal-footer justify-content-start">
+        <button type="button" class="btn btn-success" (click)="DeleteItem()">
+            <i class="fas fa-check"></i>
+            <span class="ms-2">نعم</span>
+        </button>
+        <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">
+            <i class="fas fa-times"></i>
+            <span class="ms-2">لا</span>
+        </button>
+    </div>
+</ng-template>
+
+<ng-template #SidePanel let-offcanvas>
+    <div class="offcanvas-header pb-0 d-flex align-items-center justify-content-between">
+        <div>
+            <h4 class="offcanvas-title m-0 d-flex align-items-center w-100"><i class="uil uil-document-info text-success"></i> {{OrderNumber}} - {{OrderDate| date:'dd/MM/yyyy, h:mm a'}}
+            </h4>
+        </div>
+        <button type="button" class="btn bg-danger text-white rounded" aria-label="Close" (click)="offcanvas.dismiss()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="offcanvas-body pt-0">
+        <hr>
+        <div class="container pt-3">
+            <div class="card">
+                <div class="card-body card-body-h overflow-auto">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle table-dark table-hover border shadow-lg bg-white m-0">
+                            <thead>
+                                <tr>
+                                    <th>العنصر</th>
+                                    <th>الفئة</th>
+                                    <th>الكمية</th>
+                                    <th>السعر</th>
+                                    <th>الإجمالي</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of SelectedProducts;let i = index">
+                                    <td>{{item.productName}}</td>
+                                    <td>{{item.categoryName}}</td>
+                                    <td>{{item.quantity}}</td>
+                                    <td>{{item.price}}</td>
+                                    <td>{{item.totalValue}} جنيه</td>
+                                </tr>
+                            </tbody>
+                            <tfoot *ngIf="SelectedProducts.length > 0">
+                                <tr>
+                                    <td class="text-end fw-bold">الإجمالي: </td>
+                                    <td colspan="5" class="fw-bold">{{TotalValue}} جنيه</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

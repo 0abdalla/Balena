@@ -115,5 +115,18 @@ namespace Balena.Services.Repositories
         {
             return await _dbContext.Set<T>().MaxAsync(selector, cancellationToken);
         }
+
+        public async Task<TResult?> MaxAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Set<T>()
+    .Where(predicate)
+    .MaxAsync(selector, cancellationToken);
+        }
+
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbContext.Set<T>().Where(predicate).ToListAsync();
+        }
+
     }
 }

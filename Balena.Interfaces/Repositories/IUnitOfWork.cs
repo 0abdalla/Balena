@@ -10,7 +10,13 @@ namespace Balena.Interfaces.Repositories
     public interface IUnitOfWork : IAsyncDisposable
     {
         IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class;
-        Task<int> CompleteAsync(CancellationToken cancellationToken = default);
         Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
+        ICategoryRepository Categories { get; }
+        IProductRepository Products { get; }
+        IOrderRepository Orders { get; }
+        IOrderDetailRepository OrderDetails { get; }
+        Task<int> CompleteAsync(CancellationToken cancellationToken = default);
+
+
     }
 }
