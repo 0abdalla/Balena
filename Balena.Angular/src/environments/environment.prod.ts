@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://balena-api.runasp.net/api/',
+  apiUrl: 'https://balena-api.runasp.net/api/',
 };
