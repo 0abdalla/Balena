@@ -1,4 +1,4 @@
-﻿namespace Balena.DTO
+﻿namespace Balena.Entities.Contracts.DTOs.Orders
 {
     public class OrderWithDetailsDto
     {

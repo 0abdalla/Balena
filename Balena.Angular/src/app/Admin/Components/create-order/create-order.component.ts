@@ -80,7 +80,6 @@ export class CreateOrderComponent implements OnInit {
     this.CategoryName = 'اختر فئة';
     this.ProductName = 'اختر عنصر';
     this.Products = [];
-    this.OrderId = null;
     this.CategoryValidation = false;
     this.ProductValidation = false;
     // this.ItemForm.get('InsertUser').setValue(this.UserModel?.userId);
@@ -98,6 +97,7 @@ export class CreateOrderComponent implements OnInit {
 
   openAddItemModal(content: any, item: any) {
     this.SelectedProducts = [];
+    this.OrderId = null;
     this.ResetForm();
     if (item)
       this.FillEditForm(item);
@@ -138,19 +138,19 @@ export class CreateOrderComponent implements OnInit {
 
   GetAllCategories() {
     this.adminService.GetAllCategories(this.CategoryPagingFilter).subscribe(data => {
-      this.Categories = data;
+      this.Categories = data.results;
     });
   }
 
   GetAllProducts() {
     this.adminService.GetProductsByCategoryId(this.CategoryId).subscribe(data => {
-      this.Products = data;
+      this.Products = data.results;
     });
   }
 
   GetOrderDetailsByOrderId() {
     this.adminService.GetOrderDetailsByOrderId(this.OrderId).subscribe(data => {
-      this.SelectedProducts = data.orderDetails.map(i => {
+      this.SelectedProducts = data.results.orderDetails.map(i => {
         return {
           productId: i.product.productId,
           productName: i.product.productName,
@@ -166,7 +166,7 @@ export class CreateOrderComponent implements OnInit {
 
   GetAllOrders() {
     this.adminService.GetAllOrders(this.PagingFilter).subscribe(data => {
-      this.Results = data;
+      this.Results = data.results;
     });
   }
 
@@ -236,24 +236,24 @@ export class CreateOrderComponent implements OnInit {
     }
     if (!this.OrderId) {
       this.adminService.AddNewOrder(orderObj).subscribe(data => {
-        if (data) {
-          this.toaster.success('تمت الاضافة بنجاح');
+        if (data.isSuccess) {
+          this.toaster.success(data.message);
           this.GetAllOrders();
           this.modalService.dismissAll();
         }
         else
-          this.toaster.error('لقد حدث خطأ');
+          this.toaster.error(data.message);
         this.showLoader = false;
       });
     } else {
       this.adminService.UpdateOrder(orderObj).subscribe(data => {
-        if (data) {
-          this.toaster.success('تم التعديل بنجاح');
+        if (data.isSuccess) {
+          this.toaster.success(data.message);
           this.GetAllOrders();
           this.modalService.dismissAll();
         }
         else
-          this.toaster.error('لقد حدث خطأ');
+          this.toaster.error(data.message);
         this.showLoader = false;
       });
     }
@@ -262,13 +262,13 @@ export class CreateOrderComponent implements OnInit {
   DeleteItem() {
     this.showLoader = true;
     this.adminService.DeleteOrder(this.OrderId).subscribe(data => {
-      if (data) {
-        this.toaster.success('تم الحذف بنجاح');
+      if (data.isSuccess) {
+        this.toaster.success(data.message);
         this.GetAllOrders();
         this.modalService.dismissAll();
       }
       else
-        this.toaster.error('لقد حدث خطأ');
+        this.toaster.error(data.message);
       this.showLoader = false;
     });
   }

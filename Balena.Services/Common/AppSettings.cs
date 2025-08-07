@@ -10,7 +10,9 @@ namespace Balena.Services.Common
     public class AppSettings : IAppSettings
     {
         public string[] URLList { get; set; }
+        public string ApiUrlLocal { get; set; }
         public ConnectionStrings ConnectionStrings { get; set; }
         public JWT Jwt { get; set; }
+
     }
 }

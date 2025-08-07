@@ -22,6 +22,7 @@
             <table class="table table-bordered align-middle table-dark table-hover border shadow-lg bg-white m-0">
                 <thead>
                     <tr>
+                        <th class="th-width"></th>
                         <th>الاسم</th>
                         <th>الفئة</th>
                         <th>السعر</th>
@@ -31,6 +32,9 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let item of Results">
+                        <td>
+                            <img src="{{item.image}}" class="table-image">
+                        </td>
                         <td>{{item.productName}}</td>
                         <td>{{item.categoryName}}</td>
                         <td>{{item.price}}</td>
@@ -117,7 +121,24 @@
                             </div>
                         </div>
                     </div>
-
+                    <div class="col-lg-6">
+                        <div class="choose-file-box position-relative border rounded h-58" (click)="InputFile.click()">
+                            <div class="choose-file-btn">تحميل صورة</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12" *ngIf="fileURL.length > 0">
+                        <hr class="border-success">
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-2">
+                            <div class="col" *ngFor="let url of fileURL">
+                                <div class="choosed-img img-thumbnail shadow-sm">
+                                    <img src="{{url.image}}" loading="lazy" alt="" />
+                                    <div class="choosed-img-delete" (click)="DeleteSelectedFile()">
+                                        <i class="far fa-times-circle"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -133,6 +154,8 @@
         </button>
     </div>
 </ng-template>
+
+<input type="file" #InputFile class="choose-file-input" (change)="onFileChange($event)" hidden />
 
 <ng-template #deleteItemModal let-modal>
     <div class="modal-header main-bgcolor text-white">

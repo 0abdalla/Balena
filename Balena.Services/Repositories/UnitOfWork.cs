@@ -18,17 +18,8 @@ namespace Balena.Services.Repositories
         public UnitOfWork(BADbContext dbContext)
         {
             _dbContext = dbContext;
-            Categories = new CategoryRepository(_dbContext);
-            Products = new ProductRepository(_dbContext);
-            Orders = new OrderRepository(_dbContext);
-            OrderDetails = new OrderDetailRepository(_dbContext);
             _repositories = new Hashtable();
         }
-
-        public ICategoryRepository Categories { get; private set; }
-        public IProductRepository Products { get; private set; }
-        public IOrderRepository Orders { get; private set; }
-        public IOrderDetailRepository OrderDetails { get; private set; }
 
         public IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class
         {

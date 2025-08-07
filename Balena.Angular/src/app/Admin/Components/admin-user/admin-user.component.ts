@@ -114,7 +114,8 @@ export class AdminUserComponent implements OnInit {
 
   GetAllUsers() {
     this.adminService.GetAllUsers().subscribe(data => {
-      this.UsersData = data;
+      debugger
+      this.UsersData = data.results;
       this.UsersData.forEach(item => {
         let role = this.Roles.find(i => i.nameEn == item.role);
         if (role)

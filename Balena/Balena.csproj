@@ -20,4 +20,9 @@
     <ProjectReference Include="..\Balena.Services\Balena.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\Items\" />
+    <Folder Include="wwwroot\Images\Categories\" />
+  </ItemGroup>
+
 </Project>

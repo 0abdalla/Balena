@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AdminPaginationComponent } from "../../Shared/admin-pagination/admin-pagination.component";
 import { PagingFilterModel } from '../../Models/General/PagingFilterModel';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -17,13 +17,16 @@ import { AdminService } from '../../Services/admin.service';
   styleUrl: './categories.component.css'
 })
 export class CategoriesComponent implements OnInit {
+  @ViewChild('InputFile') InputFile: ElementRef;
   UserModel: any;
   isFilter = false;
   showLoader = false;
   ItemForm: FormGroup;
   Total = 0;
   CategoryId: any;
+  ImageFile: any;
   Results: any[] = [];
+  fileURL: any[] = [];
   PagingFilter: PagingFilterModel = {
     filterList: [],
     currentpage: 1,
@@ -46,25 +49,37 @@ export class CategoriesComponent implements OnInit {
   FormInit() {
     this.ItemForm = this.fb.group({
       categoryId: 0,
-      categoryName: ['', [Validators.required, this.formService.noSpaceValidator]]
+      categoryName: ['', [Validators.required, this.formService.noSpaceValidator]],
+      insertUser: null,
+      oldFileName: null,
+      file: null,
     });
   }
 
   FillEditForm(item: any) {
+    debugger;
+    this.fileURL = [];
+    this.fileURL.push(item);
+    let fileName = item.image.split('\\');
     this.ItemForm.setValue({
       categoryId: item.categoryId,
-      categoryName: item.categoryName
+      categoryName: item.categoryName,
+      oldFileName: fileName[fileName.length - 1],
+      insertUser: this.UserModel?.userId,
+      file: null,
     });
   }
 
   ResetForm() {
     this.ItemForm.reset();
     this.ItemForm.get('categoryId').setValue(0);
-    // this.ItemForm.get('InsertUser').setValue(this.UserModel?.userId);
+    this.ItemForm.get('insertUser').setValue(this.UserModel?.userId);
   }
 
   openAddItemModal(content: any, item: any) {
     this.ResetForm();
+    this.fileURL = [];
+    this.ImageFile = null;
     if (item)
       this.FillEditForm(item);
 
@@ -86,7 +101,8 @@ export class CategoriesComponent implements OnInit {
 
   GetAllCategories() {
     this.adminService.GetAllCategories(this.PagingFilter).subscribe(data => {
-      this.Results = data;
+      this.Results = data.results;
+      this.Total = data.totalCount;
     });
   }
 
@@ -98,7 +114,29 @@ export class CategoriesComponent implements OnInit {
     this.PagingFilter.filterList = filterList;
   }
 
+  onFileChange(event: any) {
+    let fileSize = this.formService.getFileSize(event.target.files[0]);
+    if (fileSize > 1) {
+      this.toaster.warning(`هذا الملف ${event.target.files[0].name} حجمه أكبر من 1 ميجا`);
+      return;
+    }
+
+    this.fileURL = [];
+    this.ImageFile = null;
+    this.formService.onSelectedFile(event.target.files).then(data => {
+      this.fileURL.push(data[0]);
+      this.ImageFile = data[1][0];
+    });
+  }
+
+  DeleteSelectedFile() {
+    this.ImageFile = null;
+    this.fileURL = [];
+    this.InputFile.nativeElement.value = '';
+  }
+
   AddNewItem() {
+    debugger;
     this.ItemForm = this.formService.TrimFormInputValue(this.ItemForm);
     let isValid = this.ItemForm.valid;
 
@@ -106,29 +144,33 @@ export class CategoriesComponent implements OnInit {
       this.formService.validateAllFormFields(this.ItemForm);
       return;
     }
+
+    this.ItemForm.patchValue({ file: this.ImageFile });
+    const formData = new FormData();
+    this.formService.buildFormData(formData, this.ItemForm.value);
     this.showLoader = true;
     if (this.ItemForm.controls['categoryId'].value == 0) {
-      this.adminService.AddNewCategory(this.ItemForm.value).subscribe(data => {
+      this.adminService.AddNewCategory(formData).subscribe(data => {
         debugger;
-        if (data) {
-          this.toaster.success('تمت الاضافة بنجاح');
+        if (data.isSuccess) {
+          this.toaster.success(data.message);
           this.GetAllCategories();
           this.modalService.dismissAll();
         }
         else
-          this.toaster.error('لقد حدث خطأ');
+          this.toaster.error(data.message);
         this.showLoader = false;
       });
     } else {
-      this.adminService.UpdateCategory(this.ItemForm.value).subscribe(data => {
+      this.adminService.UpdateCategory(formData).subscribe(data => {
         debugger;
-        if (data) {
-          this.toaster.success('تم التعديل بنجاح');
+        if (data.isSuccess) {
+          this.toaster.success(data.message);
           this.GetAllCategories();
           this.modalService.dismissAll();
         }
         else
-          this.toaster.error('لقد حدث خطأ');
+          this.toaster.error(data.message);
         this.showLoader = false;
       });
     }
@@ -137,13 +179,13 @@ export class CategoriesComponent implements OnInit {
   DeleteItem() {
     this.showLoader = true;
     this.adminService.DeleteCategory(this.CategoryId).subscribe(data => {
-      if (data) {
-        this.toaster.success('تم الحذف بنجاح');
+      if (data.isSuccess) {
+        this.toaster.success(data.message);
         this.GetAllCategories();
         this.modalService.dismissAll();
       }
       else
-        this.toaster.error('لقد حدث خطأ');
+        this.toaster.error(data.message);
       this.showLoader = false;
     });
   }

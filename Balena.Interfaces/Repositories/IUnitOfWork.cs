@@ -11,10 +11,6 @@ namespace Balena.Interfaces.Repositories
     {
         IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class;
         Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
-        ICategoryRepository Categories { get; }
-        IProductRepository Products { get; }
-        IOrderRepository Orders { get; }
-        IOrderDetailRepository OrderDetails { get; }
         Task<int> CompleteAsync(CancellationToken cancellationToken = default);
 
 

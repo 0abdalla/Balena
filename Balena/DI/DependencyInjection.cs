@@ -3,9 +3,11 @@ using Balena.Entities.Models;
 using Balena.Interfaces.Auth;
 using Balena.Interfaces.Common;
 using Balena.Interfaces.Repositories;
+using Balena.Interfaces.SystemSettings;
 using Balena.Services.Auth;
 using Balena.Services.Common;
 using Balena.Services.Repositories;
+using Balena.Services.SystemSettings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -53,6 +55,12 @@ namespace Balena.DI
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ISQLHelper, SQLHelper>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IManageFileService, ManageFileService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IOrderService, OrderService>();
+
+
 
             return services;
         }

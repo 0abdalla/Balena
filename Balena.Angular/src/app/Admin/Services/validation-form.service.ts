@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
   providedIn: 'root'
 })
 export class ValidationFormService {
-fileURL: any[] = [];
+  fileURL: any[] = [];
 
   constructor() { }
 
@@ -107,7 +107,7 @@ fileURL: any[] = [];
       if (typeof value === 'number') {
         value = value.toString();
       }
-  
+
       if (value.trim().length === 0) {
         return { noSpace: true };
       }

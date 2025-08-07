@@ -35,7 +35,7 @@ UsersData: any[] = [];
 
   GetAllUsers() {
     this.adminService.GetAllUsers().subscribe(data => {
-      this.UsersData = data.filter(i => i.isActive);
+      this.UsersData = data.results.filter(i => i.isActive);
       this.UsersData.forEach(item => {
         let role = this.Roles.find(i => i.nameEn == item.role);
         if (role)

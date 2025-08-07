@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 
-namespace Balena.Controllers
+namespace Balena.Controllers.Auth
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -19,7 +19,7 @@ namespace Balena.Controllers
 
         [HttpGet]
         [Route("GetAllUsers")]
-        public async Task<DataTable> GetAllUsers()
+        public async Task<ApiResponseModel<DataTable>> GetAllUsers()
         {
             var results = await _authService.GetAllUsers();
             return results;

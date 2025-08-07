@@ -38,11 +38,11 @@ namespace Balena.Services.Auth
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<DataTable> GetAllUsers()
+        public async Task<ApiResponseModel<DataTable>> GetAllUsers()
         {
             var Params = new SqlParameter[0];
             var dt = await _sQLHelper.ExecuteDataTableAsync("dbo.SP_GetAllUsersData", Params);
-            return dt;
+            return ApiResponseModel<DataTable>.Success(GenericErrors.GetSuccess, dt);
         }
 
         public async Task<ApiResponseModel<ApplicationUserRespone>> AdminLogin(LoginModel request)

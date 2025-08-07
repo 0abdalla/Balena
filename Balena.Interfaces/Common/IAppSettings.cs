@@ -9,6 +9,7 @@ namespace Balena.Interfaces.Common
     public interface IAppSettings
     {
         string[] URLList { get; set; }
+        string ApiUrlLocal { get; set; }
         ConnectionStrings ConnectionStrings { get; set; }
         JWT Jwt { get; set; }
     }
