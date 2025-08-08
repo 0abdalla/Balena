@@ -26,7 +26,7 @@ export class CreateOrderComponent implements OnInit {
   activeCat = null;
   OrderId: any;
   NoteTxt = '';
-  defaultImage = 'Balena_Logo-Black.png';
+  defaultImage = 'balena-2.jpeg';
   keys: any[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
   UserModel: any;
   cashAmount = '';
@@ -202,7 +202,6 @@ export class CreateOrderComponent implements OnInit {
   }
 
   getTableNumberSelected(tableNumber: any) {
-    debugger;
     this.orderModel.tableNumber = tableNumber;
     this.modalService.dismissAll();
   }

@@ -24,7 +24,7 @@ export class CategoriesComponent implements OnInit {
   ItemForm: FormGroup;
   Total = 0;
   CategoryId: any;
-  defaultImage = 'Balena_Logo-Black.png';
+  defaultImage = 'balena-2.jpeg';
   ImageFile: any;
   Results: any[] = [];
   fileURL: any[] = [];
@@ -58,7 +58,6 @@ export class CategoriesComponent implements OnInit {
   }
 
   FillEditForm(item: any) {
-    debugger;
     this.fileURL = [];
     this.fileURL.push(item);
     let fileName = item.image.split('\\');
@@ -137,7 +136,6 @@ export class CategoriesComponent implements OnInit {
   }
 
   AddNewItem() {
-    debugger;
     this.ItemForm = this.formService.TrimFormInputValue(this.ItemForm);
     let isValid = this.ItemForm.valid;
 
@@ -152,7 +150,6 @@ export class CategoriesComponent implements OnInit {
     this.showLoader = true;
     if (this.ItemForm.controls['categoryId'].value == 0) {
       this.adminService.AddNewCategory(formData).subscribe(data => {
-        debugger;
         if (data.isSuccess) {
           this.toaster.success(data.message);
           this.GetAllCategories();
@@ -164,7 +161,6 @@ export class CategoriesComponent implements OnInit {
       });
     } else {
       this.adminService.UpdateCategory(formData).subscribe(data => {
-        debugger;
         if (data.isSuccess) {
           this.toaster.success(data.message);
           this.GetAllCategories();

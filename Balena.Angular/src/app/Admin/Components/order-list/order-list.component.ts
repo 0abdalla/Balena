@@ -23,7 +23,7 @@ export class OrderListComponent implements OnInit {
   isFilter = false;
   showLoader = false;
   ItemForm: FormGroup;
-  defaultImage = 'Balena_Logo-Black.png';
+  defaultImage = 'balena-2.jpeg';
   Total = 0;
   CategoryId: any;
   ProductId: any;
@@ -131,7 +131,6 @@ export class OrderListComponent implements OnInit {
   }
 
   CancelOrder() {
-    debugger;
     this.ItemForm = this.formService.TrimFormInputValue(this.ItemForm);
     let isValid = this.ItemForm.valid;
 
