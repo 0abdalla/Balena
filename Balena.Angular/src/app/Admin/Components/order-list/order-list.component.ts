@@ -9,12 +9,12 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { AdminFiltersComponent } from "../../Shared/admin-filters/admin-filters.component";
 import { FilterModel } from '../../Models/General/FilterModel';
 import { AdminService } from '../../Services/admin.service';
-import { RoleCheckerDirective } from '../../Directives/role-checker.directive';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-order-list',
-  imports: [AdminPaginationComponent, NgFor, NgIf, AdminFiltersComponent,
-    NgbCollapseModule, ReactiveFormsModule, NgbDropdownModule, CommonModule, RoleCheckerDirective],
+  imports: [AdminPaginationComponent, NgFor, NgIf, AdminFiltersComponent, RouterLink,
+    NgbCollapseModule, ReactiveFormsModule, NgbDropdownModule, CommonModule],
   templateUrl: './order-list.component.html',
   styleUrl: './order-list.component.css'
 })
@@ -32,6 +32,8 @@ export class OrderListComponent implements OnInit {
   Categories: any[] = [];
   Products: any[] = [];
   SelectedProducts: any[] = [];
+  VoidReason: any;
+  Notes: any;
   ProductPrice = 0;
   TotalValue = 0;
   CategoryName = 'اختر فئة';
@@ -67,7 +69,6 @@ export class OrderListComponent implements OnInit {
   FormInit() {
     this.ItemForm = this.fb.group({
       voidReason: ['', [Validators.required, this.formService.noSpaceValidator]],
-      action: null,
       voidNotes: null
     });
   }
@@ -77,8 +78,7 @@ export class OrderListComponent implements OnInit {
     this.GetOrderDetailsByOrderId();
   }
 
-  VoidReason: any;
-  Notes: any;
+
   openSidePanel(content: any, item: any) {
     this.OrderId = item.orderId;
     this.OrderNumber = item.orderNumber;
@@ -123,7 +123,15 @@ export class OrderListComponent implements OnInit {
     this.GetAllOrders();
   }
 
+  getStatusColor(statusId: number) {
+    return {
+      'finished': statusId == 1,
+      'deleted': statusId == 2
+    }
+  }
+
   CancelOrder() {
+    debugger;
     this.ItemForm = this.formService.TrimFormInputValue(this.ItemForm);
     let isValid = this.ItemForm.valid;
 

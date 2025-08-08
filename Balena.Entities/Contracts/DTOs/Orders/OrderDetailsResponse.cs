@@ -9,11 +9,21 @@ namespace Balena.Entities.Contracts.DTOs.Orders
     public class OrderDetailsResponse
     {
         public int ProductId { get; set; }
-        public string productName { get; set; }
-        public string categoryName { get; set; }
-        public int quantity { get; set; }
-        public decimal price { get; set; }
-        public string image { get; set; }
-        public decimal totalValue { get; set; }
+        public string ProductName { get; set; }
+        public string CategoryName { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+        public string Image { get; set; }
+        public decimal TotalValue { get; set; }
+        
+    }
+
+    public class OrderWithDetailsResponse
+    {
+        public string TableNumber { get; set; }
+        public string Notes { get; set; }
+        public decimal? TotalValue { get; set; }
+        public double Tax { get; set; }
+        public List<OrderDetailsResponse> OrderDetails { get; set; }
     }
 }

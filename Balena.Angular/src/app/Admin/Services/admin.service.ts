@@ -61,6 +61,10 @@ export class AdminService {
     return this.http.get<ApiResponseModel<any>>(this.apiURL + 'Order/GetOrderDetailsByOrderId?OrderId=' + OrderId);
   }
 
+  GetOrderWithDetailsByOrderId(OrderId: number) {
+    return this.http.get<ApiResponseModel<any>>(this.apiURL + 'Order/GetOrderWithDetailsByOrderId?OrderId=' + OrderId);
+  }
+
   AddNewOrder(Model: any) {
     return this.http.post<ApiResponseModel<any>>(this.apiURL + 'Order/AddNewOrder', Model);
   }

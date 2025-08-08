@@ -70,5 +70,7 @@ namespace Balena.Services.Common
         public static Error TableNumberExist = new("رقم الطاولة موجود");
 
         public static Error FinishOrderTable = new("تم إغلاق الطاولة بنجاح");
+
+        public static Error TableIsBusy = new("هذه الطاولة مشغولة برجاء اختيار طاولة متاحة");
     }
 }

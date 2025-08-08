@@ -34,16 +34,18 @@
                     <tr *ngFor="let item of Results">
                         <td>{{item.orderNumber}}</td>
                         <td>
-                            <span *ngIf="Lang == 'ar'" class="badge rounded-pill default p-2 text-uppercase px-3" [ngClass]="getStatusColor(order.orderStatus)">{{order.orderStatusNameAr}}
-                                </span>
+                            <span class="badge rounded-pill default p-2 text-uppercase px-3" [ngClass]="getStatusColor(item.statusId)">
+                                {{item.statusId == 1 ? 'منتهي' : item.statusId == 2 ? 'ملغي' : '-'}}
+                            </span>
                         </td>
                         <td>{{item.orderDate | date:'dd/MM/yyyy, h:mm a'}}</td>
-                        <td>{{item.totalAmount}} جنيه</td>
+                        <td>{{item.totalAmount}} ج.م</td>
                         <td>كاش</td>
                         <td>
                             <div class="d-flex align-items-center justify-content-center fs-5 gap-2">
-                                <i class="uil uil-document-info text-success icon-table-action shadow-sm" (click)="openSidePanel(SidePanel,item)"></i>
+                                <i class="uil uil-edit text-primary icon-table-action shadow-sm" [routerLink]="['/create-order']" [queryParams]="{ orderId: item.orderId }"></i>
                                 <i class="uil uil-times-circle text-danger icon-table-action shadow-sm" appRole [roles]="['SupperAdmin']" (click)="openDeleteItemModal(deleteItemModal,item)"></i>
+                                <i class="uil uil-document-info text-success icon-table-action shadow-sm" (click)="openSidePanel(SidePanel,item)"></i>
                             </div>
                         </td>
                     </tr>
@@ -67,7 +69,7 @@
     <div class="modal-body">
         <form [formGroup]="ItemForm" autocomplete="off">
             <div class="row g-3">
-                <div class="col-lg-6">
+                <div class="col-lg-12">
                     <div class="form-floating">
                         <input type="text" class="form-control" formControlName="voidReason" id="floatingInput_1" placeholder="new-user" required>
                         <label for="floatingInput_1">سبب الالغاء</label>
@@ -76,17 +78,6 @@
                                 هذا الحقل مطلوب
                             </div>
                             <div *ngIf="ItemForm.controls['voidReason'].errors?.['noSpace']">
-                                لا يمكن ان يحتوي الحقل على مسافات فقط
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="form-floating">
-                        <input type="text" class="form-control" formControlName="action" id="floatingInput_1" placeholder="new-user">
-                        <label for="floatingInput_1">العملية</label>
-                        <div *ngIf="ItemForm.controls['action']?.invalid && (ItemForm.controls['action']?.dirty || ItemForm.controls['action']?.touched)" class="text-danger pt-2">
-                            <div *ngIf="ItemForm.controls['action'].errors?.['noSpace']">
                                 لا يمكن ان يحتوي الحقل على مسافات فقط
                             </div>
                         </div>
@@ -154,13 +145,13 @@
                                     <td>{{item.categoryName}}</td>
                                     <td>{{item.quantity}}</td>
                                     <td>{{item.price}}</td>
-                                    <td>{{item.totalValue}} جنيه</td>
+                                    <td>{{item.totalValue}} ج.م</td>
                                 </tr>
                             </tbody>
                             <tfoot *ngIf="SelectedProducts.length > 0">
                                 <tr>
                                     <td class="text-end fw-bold">الإجمالي: </td>
-                                    <td colspan="5" class="fw-bold">{{TotalValue}} جنيه</td>
+                                    <td colspan="5" class="fw-bold">{{TotalValue}} ج.م</td>
                                 </tr>
                             </tfoot>
                         </table>

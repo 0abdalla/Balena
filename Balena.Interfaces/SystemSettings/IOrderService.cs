@@ -13,8 +13,9 @@ namespace Balena.Interfaces.SystemSettings
     {
         Task<ApiResponseModel<List<Order>>> GetAllOrders(PagingFilterModel Model);
         Task<ApiResponseModel<List<OrderDetailsResponse>>> GetOrderDetailsByOrderId(int OrderId);
+        Task<ApiResponseModel<OrderWithDetailsResponse>> GetOrderWithDetailsByOrderId(int OrderId);
         Task<ApiResponseModel<string>> AddNewOrder(OrderWithDetailsDto dto);
         Task<ApiResponseModel<string>> UpdateOrder(OrderWithDetailsDto order);
-        Task<ApiResponseModel<string>> CancelOrder(string VoidReason, string Action, string VoidNotes, int OrderId);
+        Task<ApiResponseModel<string>> CancelOrder(string VoidReason, string Action, string? VoidNotes, int OrderId);
     }
 }

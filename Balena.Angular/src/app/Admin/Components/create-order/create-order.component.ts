@@ -4,14 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { SearchArryPipe } from '../../Pipes/search-arry.pipe';
 import { AdminService } from '../../Services/admin.service';
 import { PagingFilterModel } from '../../Models/General/PagingFilterModel';
 import { OrderTableComponent } from '../order-table/order-table.component';
 
 @Component({
   selector: 'app-create-order',
-  imports: [SearchArryPipe, RouterLink, NgFor, NgIf, FormsModule, CommonModule,OrderTableComponent],
+  imports: [RouterLink, NgFor, NgIf, FormsModule, CommonModule, OrderTableComponent],
   templateUrl: './create-order.component.html',
   styleUrl: './create-order.component.css'
 })
@@ -50,9 +49,27 @@ export class CreateOrderComponent implements OnInit {
   ngOnInit(): void {
     this.ele = document.documentElement;
     this.UserModel = JSON.parse(localStorage.getItem('UserModel'));
+    this.OrderId = this.route.snapshot.queryParamMap.get('orderId');
     this.orderModel.totalValue = 0;
     this.GetCurrentTime();
     this.GetAllCategories();
+    if (this.OrderId)
+      this.GetOrderWithDetailsByOrderId();
+  }
+
+  GetOrderWithDetailsByOrderId() {
+    this.adminService.GetOrderWithDetailsByOrderId(this.OrderId).subscribe(data => {
+      if (data.isSuccess) {
+        this.NoteTxt = data?.results?.notes;
+        this.orderModel.tableNumber = data?.results?.tableNumber;
+        this.orderModel.notes = data?.results?.notes;
+        this.orderModel.totalValue = data?.results?.totalValue;
+        this.orderModel.tax = data?.results?.tax;
+        this.selectedFoodItems = data.results.orderDetails;
+      } else {
+        this.toaster.error(data.message);
+      }
+    });
   }
 
   openExpandModal(content: any) {
@@ -65,11 +82,12 @@ export class CreateOrderComponent implements OnInit {
 
   openPayModal(content: any) {
     this.amountPaid = '';
+    this.cashAmount = '';
     this.remaining = 0;
     this.modalService.open(content, { size: 'md', centered: true, scrollable: true });
   }
 
-  openTableModal(content: any){
+  openTableModal(content: any) {
     this.modalService.open(content, { size: 'xl', centered: true, scrollable: true })
   }
 
@@ -219,6 +237,7 @@ export class CreateOrderComponent implements OnInit {
     this.selectedFoodItems = [];
     this.foodItemsList = [];
     this.orderModel.totalValue = 0;
+    this.OrderId = null;
     this.cashAmount = '';
     this.amountPaid = '';
     this.NoteTxt = '';
@@ -256,6 +275,7 @@ export class CreateOrderComponent implements OnInit {
           this.toaster.error(data.message);
       });
     } else {
+      this.orderModel.orderId = this.OrderId;
       this.adminService.UpdateOrder(this.orderModel).subscribe(data => {
         if (data.isSuccess) {
           this.toaster.success(data.message);

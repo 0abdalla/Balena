@@ -6,7 +6,6 @@ using Balena.Interfaces.Common;
 using Balena.Interfaces.Repositories;
 using Balena.Interfaces.SystemSettings;
 using Balena.Services.Common;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Balena.Services.SystemSettings
 {
@@ -38,12 +37,12 @@ namespace Balena.Services.SystemSettings
             var data = results.OrderDetails.Select(i => new OrderDetailsResponse
             {
                 ProductId = i.Product.ProductId,
-                productName = i.Product.ProductName,
-                categoryName = i.Product.Category.CategoryName,
-                image = Path.Combine(ApiLocalUrl, "Images", ImageFiles.Items.ToString(), i.Product.Image ?? string.Empty),
-                price = i.Product.Price,
-                quantity = i.Quantity,
-                totalValue = i.Product.Price * i.Quantity,
+                ProductName = i.Product.ProductName,
+                CategoryName = i.Product.Category.CategoryName,
+                Image = Path.Combine(ApiLocalUrl, "Images", ImageFiles.Items.ToString(), i.Product.Image ?? string.Empty),
+                Price = i.Product.Price,
+                Quantity = i.Quantity,
+                TotalValue = i.Product.Price * i.Quantity,
             }).ToList();
             return ApiResponseModel<List<OrderDetailsResponse>>.Success(GenericErrors.GetSuccess, data);
         }
@@ -56,7 +55,13 @@ namespace Balena.Services.SystemSettings
                 {
                     var TableEntity = await _unitOfWork.Repository<OrderTable>().FirstOrDefaultAsync(i => i.TableNumber == dto.TableNumber);
                     if (TableEntity != null)
+                    {
+                        if (!TableEntity.IsActive)
+                            return ApiResponseModel<string>.Failure(GenericErrors.TableIsBusy);
+
                         TableEntity.IsActive = false;
+                    }
+
                 }
 
                 var Spec = new OrderNumberSpecification(DateTime.UtcNow);
@@ -71,7 +76,7 @@ namespace Balena.Services.SystemSettings
                     OrderDate = DateTime.UtcNow,
                     TotalAmount = dto.TotalAmount,
                     PaymentMethod = dto.PaymentMethod,
-                    StatusId = (int)dto.OrderStatus,
+                    StatusId = (int)OrderStatus.Finished,
                     Notes = dto.Notes,
                     Tax = dto.Tax,
                     InsertUser = dto.UserId,
@@ -108,6 +113,18 @@ namespace Balena.Services.SystemSettings
         {
             try
             {
+                if (!string.IsNullOrEmpty(order.TableNumber))
+                {
+                    var TableEntity = await _unitOfWork.Repository<OrderTable>().FirstOrDefaultAsync(i => i.TableNumber == order.TableNumber);
+                    if (TableEntity != null)
+                    {
+                        if (!TableEntity.IsActive)
+                            return ApiResponseModel<string>.Failure(GenericErrors.TableIsBusy);
+
+                        TableEntity.IsActive = false;
+                    }
+                }
+
                 var Spec = new OrderDetailsSpecification(order.OrderId.Value);
                 var entity = await _unitOfWork.Repository<Order>().GetByIdWithSpecAsync(Spec);
                 if (entity != null)
@@ -124,9 +141,13 @@ namespace Balena.Services.SystemSettings
                         };
                         await _unitOfWork.Repository<OrderDetail>().AddAsync(orderDetail);
                     }
-                    entity.CustomerId = order.CustomerID;
+
                     entity.TotalAmount = order.TotalAmount;
-                    entity.PaymentMethod = order.PaymentMethod;
+                    entity.TableNumber = order.TableNumber;
+                    entity.Tax = order.Tax;
+                    entity.Notes = order.Notes;
+                    entity.UpdateUser = order.UserId;
+                    entity.UpdateDate = DateTime.UtcNow;
 
                     await _unitOfWork.CompleteAsync();
                     return ApiResponseModel<string>.Success(GenericErrors.UpdateSuccess);
@@ -143,7 +164,7 @@ namespace Balena.Services.SystemSettings
 
         }
 
-        public async Task<ApiResponseModel<string>> CancelOrder(string VoidReason, string Action, string VoidNotes, int OrderId)
+        public async Task<ApiResponseModel<string>> CancelOrder(string VoidReason, string Action, string? VoidNotes, int OrderId)
         {
             try
             {
@@ -153,7 +174,7 @@ namespace Balena.Services.SystemSettings
                 {
                     Order.VoidReason = VoidReason;
                     Order.VoidNotes = VoidNotes;
-                    Order.Action = Action;
+                    Order.StatusId = (int)OrderStatus.Canceled;
 
                     await _unitOfWork.CompleteAsync();
                     return ApiResponseModel<string>.Success(GenericErrors.DeleteSuccess);
@@ -165,7 +186,31 @@ namespace Balena.Services.SystemSettings
             {
                 return ApiResponseModel<string>.Failure(GenericErrors.TransFailed);
             }
+        }
 
+        public async Task<ApiResponseModel<OrderWithDetailsResponse>> GetOrderWithDetailsByOrderId(int OrderId)
+        {
+            var Spec = new OrderDetailsSpecification(OrderId);
+            var results = await _unitOfWork.Repository<Order>().GetByIdWithSpecAsync(Spec);
+            var data = new OrderWithDetailsResponse();
+            if (results != null)
+            {
+                data.TableNumber = results.TableNumber;
+                data.Notes = results.Notes;
+                data.TotalValue = results.TotalAmount;
+                data.Tax = results.Tax;
+                data.OrderDetails = results.OrderDetails.Select(i => new OrderDetailsResponse
+                {
+                    ProductId = i.Product.ProductId,
+                    ProductName = i.Product.ProductName,
+                    Image = Path.Combine(ApiLocalUrl, "Images", ImageFiles.Items.ToString(), i.Product.Image ?? string.Empty),
+                    Price = i.Product.Price,
+                    Quantity = i.Quantity,
+                    TotalValue = i.Product.Price * i.Quantity,
+                }).ToList();
+            }
+
+            return ApiResponseModel<OrderWithDetailsResponse>.Success(GenericErrors.GetSuccess, data);
         }
     }
 }
