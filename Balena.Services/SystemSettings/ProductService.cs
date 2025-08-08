@@ -134,10 +134,11 @@ namespace Balena.Services.SystemSettings
                 ProductId = i.ProductId,
                 CategoryId = i.CategoryId,
                 ProductName = i.ProductName,
-                Image = Path.Combine(ApiLocalUrl, ImageFiles.Items.ToString(), i.Image ?? string.Empty),
+                Price = i.Price,
+                Image = Path.Combine(ApiLocalUrl, "Images", ImageFiles.Items.ToString(), i.Image ?? string.Empty),
                 Description = i.Description,
             }).ToList();
-            return ApiResponseModel<List<Product>>.Success(GenericErrors.GetSuccess, results);
+            return ApiResponseModel<List<Product>>.Success(GenericErrors.GetSuccess, data);
         }
 
         private void DeleteCategoryFile(string ItemImageName)

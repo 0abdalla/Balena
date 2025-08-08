@@ -1,238 +1,362 @@
-<div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-3">
-        <div class="d-flex align-items-center flex-wrap gap-2">
-            <button class="btn main-button d-flex align-items-center gap-2" (click)="openAddItemModal(OpenItemModal,null)">
-                <i class="uil uil-plus-circle"></i>
-                <span class="navbar-brand m-0">اضافة</span>
-            </button>
-            <button class="btn main-button d-flex align-items-center gap-2" (click)="isFilter = !isFilter" [attr.aria-expanded]="!isFilter">
-                <i class="uil uil-filter"></i>
-                <span class="navbar-brand m-0">{{ isFilter ? 'عرض' : 'اخفاء' }} الفلاتر</span>
-            </button>
-        </div>
-        <div>
-            <app-admin-pagination [currentPage]="PagingFilter.currentpage" [pageSize]="PagingFilter.pagesize" [totalPages]="0" [totalCount]="Total" (pageChanged)="PageChange($event)"></app-admin-pagination>
+<nav class="breadcrumb-nav border-bottom border-4" style="background-color: #6c757d; color: #fff;">
+    <div class="d-flex align-items-center justify-content-between">
+        <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><span class="fw-bold">{{ UserModel?.userName}}</span></li>
+        </ol>
+
+        <div class="d-flex text-center">
+            <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item"><span class="fw-bold">{{CurrentTime}}</span></li>
+                <span class="me-2 ms-2"> - </span>
+                <li class="breadcrumb-item"><span class="fw-bold">{{UserModel?.loginDateAr}}</span></li>
+            </ol>
         </div>
     </div>
-    <div class="px-3 py-2 bg-light border-bottom" #collapse="ngbCollapse" [(ngbCollapse)]="isFilter">
-        <app-admin-filters [PlaceHolder]="'برقم الطلب'" (FilterChecked)="FilterChecked($event)"></app-admin-filters>
-    </div>
-    <div class="card-body card-body-h">
-        <div class="table-responsive mb-2">
-            <table class="table table-bordered align-middle table-dark table-hover border shadow-lg bg-white m-0">
-                <thead>
-                    <tr>
-                        <th>رقم الطلب</th>
-                        <th>تاريخ الطلب</th>
-                        <th>الإجمالي</th>
-                        <th>نوع الدفع</th>
-                        <th class="text-center">أجراءات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let item of Results">
-                        <td>{{item.orderNumber}}</td>
-                        <td>{{item.orderDate | date:'dd/MM/yyyy, h:mm a'}}</td>
-                        <td>{{item.totalAmount}} جنيه</td>
-                        <td>كاش</td>
-                        <td>
-                            <div class="d-flex align-items-center justify-content-center fs-5 gap-2">
-                                <i class="uil uil-edit text-primary icon-table-action shadow-sm" appRoleChecker [roles]="['SupperAdmin']" (click)="openAddItemModal(OpenItemModal,item)"></i>
-                                <i class="uil uil-times-circle text-danger icon-table-action shadow-sm" appRoleChecker [roles]="['SupperAdmin']" (click)="openDeleteItemModal(deleteItemModal,item)"></i>
-                                <i class="uil uil-document-info text-success icon-table-action shadow-sm" (click)="openSidePanel(SidePanel,item)"></i>
+</nav>
+<div class="container-fluid">
+    <div class="row h-100">
+        <div class="col-xl-8">
+            <section class="order-categories">
+                <div class="order-cat-wrapper small-scroll pe-2 mb-4" [class.open]="isOrderCatOpen">
+                    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                        <div *ngFor="let item of categoriesList;let i=index" class="col d-flex align-items-center justify-content-center">
+                            <div (click)="GetProductsByCategoryId(item.categoryId)" class="filter-order-box position-relative shadow-sm cursor-pointer" [class.active]="activeCat === i">
+                                <div class="filter-order-image">
+                                    <img src="{{item.image}}" (error)="$event.target.src = defaultImage" loading="lazy" alt="order-img" />
+                                </div>
+                                <div class="filter-order-text fs-6 text-uppercase fw-bold">{{item.categoryName}}
+                                </div>
                             </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                        </div>
+                    </div>
+                </div>
+                <button class="order-cat-collapse-btn shadow-lg" (click)="isOrderCatOpen = !isOrderCatOpen;">
+                    <i class="fas fa-chevron-down" [class.icon-rotated]="isOrderCatOpen"></i>
+                </button>
+            </section>
+            <ng-container>
+                <div class="choosed-cat-result-card-wrapper overflow-auto small-scroll pe-2 mt-5 mb-4">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 row-cols-lg-6 g-3">
+                        <div *ngFor="let item of foodItemsList;let i=index" (click)="onClickFoodItem(item,newModal)" class="col">
+                            <div class="choosed-cat-result-card bg-white p-3 d-flex flex-column gap-2 shadow-sm rounded cursor-pointer h-100">
+                                <div class="choosed-cat-result-img">
+                                    <img [src]="item.image" (error)="$event.target.src = defaultImage" loading="lazy" alt="item-image" />
+                                </div>
+                                <div class="main-color fw-bold">{{item.productName}}</div>
+                                <div class="fw-bold fs-6 text-danger">{{item.price}} ج.م</div>
+                                <div class="choosed-cat-result-add">
+                                    <img src="add-square.png" loading="lazy" alt="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+            <section class="order-settings">
+                <div class="row g-3 mb-3 justify-content-center">
+                    <div class="col-lg-2">
+                        <div class="order-home-box box-hover d-flex flex-column align-items-center justify-content-center rounded h-100 cursor-pointer shadow-sm gap-2" routerLink="/admin/home">
+                            <i class="uil uil-home"></i>
+                            <h5 class="m-0 text-center">الرئيسية</h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="order-home-box box-hover d-flex flex-column align-items-center justify-content-center rounded h-100 cursor-pointer shadow-sm gap-2" (click)="openTableModal(selectTableModal)">
+                            <i class="fas fa-dolly"></i>
+                            <h5 class="m-0 text-center">اختر طاولة</h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="order-home-box box-hover d-flex flex-column align-items-center justify-content-center rounded h-100 cursor-pointer shadow-sm gap-2" (click)="resetOrderModel()">
+                            <i class="fas fa-window-close"></i>
+                            <h5 class="m-0 text-center">الغاء</h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="order-home-box box-hover d-flex flex-column align-items-center justify-content-center rounded h-100 cursor-pointer shadow-sm gap-2" (click)="toggleFullscreenWindow()">
+                            <i class="fas" [ngClass]="{'fa-expand': fullscreenMode === false, 'fa-compress': fullscreenMode}"></i>
+                            <h5 class="m-0 text-center">شاشة كاملة</h5>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
-        <div>
-            <app-admin-pagination (pageChanged)="PagingFilter.currentpage = $event.page" [currentPage]="PagingFilter.currentpage" [pageSize]="PagingFilter.pagesize" [totalPages]="0" [totalCount]="Total"></app-admin-pagination>
+        <div class="col-xl-4">
+            <header class="module-header rounded shadow-lg text-white px-3 py-3 d-flex align-items-center mb-2">
+                <div class="bullets-box position-relative w-100">
+                    <h3 class="position-relative d-flex align-items-center m-0 cursor-pointer">
+                        <div class="module-header-icon me-2">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between w-100">
+                            <span class="username-title text-white text-uppercase fw-bold ms-2">صالة</span>
+                            <span *ngIf="orderModel?.tableNumber">رقم الطاولة: {{orderModel?.tableNumber}}</span>
+                        </div>
+                    </h3>
+                    <h5 class="position-relative d-flex align-items-center m-0">
+                    </h5>
+                </div>
+            </header>
+            <div class="bg-white rounded px-3 py-2 border shadow-sm mb-1">
+                <div class="form-control d-flex min-height-50">
+                    <div class="w-100 me-2 text-danger">
+                        <span>{{orderModel?.notes}}</span>
+                    </div>
+                    <div class="order-setting-icon rounded cursor-pointer border" (click)="openNotesModal(notesModal)">
+                        <i class="fa-solid far fa-comments"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="items-header-box rounded px-3 py-2 mb-2 d-flex align-items-center justify-content-between text-white">
+                <div class="fs-5">العناصر</div>
+                <div class="fw-bold fs-5 d-flex align-items-center">
+                    <div *ngIf="selectedFoodItems?.length" class="me-2"># {{selectedFoodItems?.length}}</div>
+                    <div class="d-flex align-items-center order-setting-icon rounded cursor-pointer border" (click)="openExpandModal(foodItemsExpand)">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="order-list-box bg-white rounded px-3 py-2 mb-2 overflow-auto small-scroll shadow-sm">
+                <div *ngFor="let item of selectedFoodItems;let i = index" class="order-list-item  gap-2 p-2 rounded">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center cursor-pointer gap-2">
+                            <div class="order-list-img rounded">
+                                <img [src]="item.image" (error)="$event.target.src = defaultImage" loading="lazy" alt="item-image" />
+                            </div>
+                            <div>
+                                <div class="fw-bold fs-5">{{item.productName}}</div>
+                                <div class="text-muted">{{item.quantity}} * {{item.price}} ج.م</div>
+                            </div>
+                        </div>
+                        <div class="order-list-text d-flex align-items-center gap-4">
+                            <div>
+                                <div class="main-color fw-bold fs-6">{{item.totalValue}} ج.م</div>
+                                <div class="fw-bold text-muted fs-6">{{item.quantity}} الكمية</div>
+                            </div>
+                            <i (click)="removeItem(i)" class="fas fa-times-circle delete-order-list-item-btn cursor-pointer fs-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded px-3 py-2 mb-2 shadow-sm">
+                <div class="order-summary-check d-flex align-items-center justify-content-between border-bottom pb-05 mb-1">
+                    <div class="order-summary-dots d-flex align-items-center fs-6 position-relative">ضريبة
+                    </div>
+                    <div class="fw-bold fs-5">0 ج.م</div>
+                </div>
+                <div class="order-summary-check d-flex align-items-center justify-content-between">
+                    <div class="order-summary-dots d-flex align-items-center fs-5 position-relative main-color fw-bold">
+                        الإجمالي
+                    </div>
+                    <div class="fw-bold fs-5">{{orderModel?.totalValue}} ج.م</div>
+                </div>
+            </div>
+            <div class="rounded text-white px-3 py-2 d-flex align-items-center justify-content-between pay-background">
+                <button class="btn btn-lg justify-content-center pay-button" (click)="openPayModal(payModal)">دفع</button>
+                <div class="p-2 rounded fs-5 fw-bold">{{orderModel?.totalValue}} ج.م
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-
-<ng-template #OpenItemModal let-modal>
-    <div class="modal-header d-flex align-items-center justify-content-between main-bgcolor text-white">
-        <div class="display-7 d-flex align-items-center gap-3">
-            <i class="uil uil-focus-add"></i>
-            <span>املأ البيانات التالية</span>
-        </div>
-        <i class="fas fa-times cursor-pointer fa-2x modal-close-btn" (click)="modal.dismiss()"></i>
+<ng-template #newModal let-modal>
+    <div class="modal-header justify-content-between">
+        <h4 class="modal-title m-0" id="modal-basic-title">{{addSelectedFoodItem.productName}}</h4>
+        <button class="btn btn-danger" (click)="modal.dismiss()">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
-    <div class="modal-body gray-bgcolor">
-        <div class="bg-white p-3 rounded shadow-sm">
-            <form [formGroup]="ItemForm" autocomplete="off">
-                <div class="row g-3">
-                    <div class="col-lg-6">
-                        <div ngbDropdown class="dropdown-with-search overflow-hidden" container="body">
-                            <button class="dropdown-with-search-btn btn border h-58 w-100 d-flex align-items-center justify-content-between selector-padding" id="dropdownBasic1" ngbDropdownToggle>
-                                {{CategoryName}}
-                            </button>
-                            <div class="width-530 py-0 overflow-hidden dropdown-fitting" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                                <ul class="dropdown-list-box list-unstyled max-height-220 overflow-auto px-1 py-1 m-0">
-                                    <ng-container *ngFor="let item of Categories">
-                                        <li class="dropdown-item cursor-pointer rounded" [ngClass]="{'DropDownSelected': CategoryName == item.categoryName}" (click)="onCategoryClicked(item)">{{item.categoryName}}</li>
-                                    </ng-container>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="text-danger pt-2" *ngIf="CategoryValidation">
-                            هذا الحقل مطلوب
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div ngbDropdown class="dropdown-with-search overflow-hidden" container="body">
-                            <button class="dropdown-with-search-btn btn border h-58 w-100 d-flex align-items-center justify-content-between selector-padding" id="dropdownBasic1" ngbDropdownToggle>
-                                {{ProductName}}
-                            </button>
-                            <div class="width-530 py-0 overflow-hidden dropdown-fitting" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                                <ul class="dropdown-list-box list-unstyled max-height-220 overflow-auto px-1 py-1 m-0">
-                                    <ng-container *ngFor="let item of Products">
-                                        <li class="dropdown-item cursor-pointer rounded" [ngClass]="{'DropDownSelected': ProductName == item.productName}" (click)="onProductClicked(item)">{{item.productName}}</li>
-                                    </ng-container>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="text-danger pt-2" *ngIf="ProductValidation">
-                            هذا الحقل مطلوب
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="form-floating">
-                            <input type="number" class="form-control" formControlName="quantity" id="floatingInput_1" placeholder="new-user" required>
-                            <label for="floatingInput_1">الكمية</label>
-                            <div *ngIf="ItemForm.controls['quantity']?.invalid && (ItemForm.controls['quantity']?.dirty || ItemForm.controls['quantity']?.touched)" class="text-danger pt-2">
-                                <div *ngIf="ItemForm.controls['quantity'].errors?.['required']">
-                                    هذا الحقل مطلوب
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-2">
-                        <button class="btn btn-primary mt-2" (click)="AddNewItem()">اضافة</button>
-                    </div>
+    <div class="modal-body bg-light">
+        <div class="px-3 py-2 border rounded shadow-sm bg-white">
+            <div class="food-type-box d-flex align-items-center justify-content-between">
+                <div>
+                    <label class="form-check-label text-danger fw-bold fs-5" for="regular-type">السعر</label>
                 </div>
-            </form>
-        </div>
-        <hr>
-        <div class="card-body card-body-h">
-            <div class="table-responsive mb-2">
-                <table class="table table-bordered align-middle table-dark table-hover border shadow-lg bg-white m-0">
-                    <thead>
-                        <tr>
-                            <th>العنصر</th>
-                            <th>الفئة</th>
-                            <th>الكمية</th>
-                            <th>السعر</th>
-                            <th>الإجمالي</th>
-                            <th class="text-center">أجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let item of SelectedProducts;let i = index">
-                            <td>{{item.productName}}</td>
-                            <td>{{item.categoryName}}</td>
-                            <td>{{item.quantity}}</td>
-                            <td>{{item.price}}</td>
-                            <td>{{item.totalValue}} جنيه</td>
-                            <td>
-                                <div class="d-flex align-items-center justify-content-center fs-5 gap-2">
-                                    <i class="uil uil-times-circle text-danger icon-table-action shadow-sm" (click)="RemoveItem(i)"></i>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot *ngIf="SelectedProducts.length > 0">
-                        <tr>
-                            <td class="text-end fw-bold">الإجمالي: </td>
-                            <td colspan="5" class="fw-bold">{{TotalValue}} جنيه</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <div class="main-color fw-bold fs-5">{{addSelectedFoodItem.price}} ج.م</div>
             </div>
         </div>
     </div>
-    <div class="modal-footer justify-content-start gap-2">
-        <button type="submit" class="btn main-button d-flex align-items-center gap-2" (click)="AddNewOrder()">
-            <i class="uil uil-plus-circle"></i>
-            <span>اضافه</span>
+    <div class="modal-footer justify-content-center">
+        <div class="modal-counter size-lg m-0 mb-2">
+            <div class="counter-minus counter-action bg-light" (click)="changeMasterItemQuantity(-1,addSelectedFoodItem)">
+                <i class="fas fa-minus"></i>
+            </div>
+            <input type="text" class="form-control counter-input" [value]="addSelectedFoodItem.masterQuantity" disabled />
+            <div class="counter-plus counter-action bg-light" (click)="changeMasterItemQuantity(1,addSelectedFoodItem)">
+                <i class="fas fa-plus"></i>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow-sm cursor-pointer bg-light w-100">
+        <div class="card-body">
+            <div class="amount-paid-keyboards">
+                <div class="key card order-card-payment shadow-sm cursor-pointer text-center" *ngFor="let key of keys" (click)="GetItemQuantityNumbers(key)"> {{ key }}</div>
+                <div class="key card order-card-payment shadow-sm cursor-pointer text-center column-span-2" (click)="GetItemQuantityNumbers('C')">C</div>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-success w-100 justify-content-center py-3 fs-5 radius-15" (click)="createMasterItems()">
+        <i class="fas fa-cart-plus me-2"></i> اضافة
+    </button>
+</ng-template>
+
+<ng-template #payModal let-modal>
+    <div class="modal-header justify-content-between">
+        <h4 class="d-flex align-items-center m-0">
+            <img src="debit-card.png" class="pay-img" alt="Cash-image" loading="lazy" />
+            <div class="ms-3">دفعة</div>
+        </h4>
+        <button class="btn btn-danger" (click)="modal.dismiss()">
+            <i class="fas fa-times"></i>
         </button>
-        <button class="btn btn-danger rounded-25 d-flex align-items-center gap-2" (click)="modal.close()">
-            <i class="uil uil-times-circle"></i>
-            <span>الغاء</span>
-        </button>
+    </div>
+    <div class="modal-body bg-light">
+        <div class="order-summary-check d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center fs-5 position-relative main-color fw-bold">
+                صافى القيمة
+            </div>
+            <div class="fw-bold fs-5">{{orderModel?.totalValue| number : '1.2-2'}} ج.م</div>
+        </div>
+        <hr class="border-dark">
+        <div class="mb-2">
+            <div class="card order-card-payment shadow-sm cursor-pointer active">
+                <div class="card-body d-flex align-items-center">
+                    <img src="profits.png" class="pay-img" alt="Cash-image" loading="lazy" />
+                    <span class="ms-3">نقدى</span>
+                </div>
+            </div>
+        </div>
+        <ng-container>
+            <div class="card shadow-sm cursor-pointer bg-light w-100">
+                <div class="card-body">
+                    <div class="mb-2 d-flex align-items-center">
+                        <img src="payment-way.png" class="pay-img" alt="Cash-image" loading="lazy" />
+                        <div class="ms-3 font-size-20">الدفع نقدا</div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <label class="label-text">المبلغ النقدي</label>
+                        <input type="text" class="form-control height-50 text-center font-size-20 mb-2" [(ngModel)]="cashAmount" (input)="onAmountPaidChange()" (keypress)="NumbersOnly($event.key)" placeholder="0.0" />
+                    </div>
+                    <div class="amount-paid-keyboards">
+                        <div class="key card order-card-payment shadow-sm cursor-pointer text-center" *ngFor="let key of keys" (click)="GetPayInputNumbers(key)">{{key}}</div>
+                        <div class="key card order-card-payment shadow-sm cursor-pointer text-center column-span-2" (click)="GetPayInputNumbers('C')">C</div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+        <hr class="border-dark">
+        <div class="card shadow-sm w-100 mb-2">
+            <div class="card-body py-2">
+                <div class="row align-items-center">
+                    <div class="col-lg-3">
+                        <p class="m-0 fs-5">المتبقى</p>
+                    </div>
+                    <div class="col-lg-9">
+                        <div class="text-dark fw-bold text-end">{{remaining | number : '1.2-2'}} ج.م
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="border-dark">
+        <button type="button" id="btn_submit" class="btn btn-primary w-100 justify-content-center py-3 fs-5 radius-10 mt-2" (click)="createOrder()">
+            <i class="fas fa-check-circle me-2"></i> تاكيد</button>
     </div>
 </ng-template>
 
-<ng-template #deleteItemModal let-modal>
-    <div class="modal-header main-bgcolor text-white">
-        <div class="display-7 d-flex align-items-center gap-3">
-            <i class="uil uil-trash-alt"></i>
-            <span>حذف عنصر</span>
-        </div>
-    </div>
+<ng-template #foodItemsExpand let-modal>
     <div class="modal-body">
-        <p class="fs-5 m-0">هل انت متأكد أنك تريد حذف هذا العنصر</p>
+        <div class="bg-white rounded px-3 py-2 mb-2 border shadow-sm mb-2">
+            <div class="form-control d-flex min-height-50">
+                <div class="w-100 me-2 text-danger">
+                    <span>{{orderModel?.notes}}</span>
+                </div>
+                <div (click)="openNotesModal(notesModal)" class="order-setting-icon rounded cursor-pointer border">
+                    <i class="fa-solid far fa-comments"></i>
+                </div>
+            </div>
+        </div>
+        <div class="promo-code-box rounded px-3 py-2 mb-2 d-flex align-items-center justify-content-between text-white">
+            <div class="fs-5">العناصر</div>
+            <div class="fw-bold fs-5 d-flex align-items-center">
+                <div *ngIf="selectedFoodItems?.length" class="me-2"># {{selectedFoodItems?.length}}</div>
+            </div>
+        </div>
+        <div style="height: 400px;" class="bg-white rounded px-3 py-2 mb-2 overflow-auto small-scroll shadow-sm">
+            <div *ngFor="let item of selectedFoodItems;let i = index" class="order-list-item  gap-2 p-2 rounded">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center cursor-pointer  gap-2">
+                        <div class="order-list-img rounded">
+                            <img [src]="item.image" (error)="$event.target.src = defaultImage" loading="lazy" alt="item-image" />
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-5">{{item.productName}}</div>
+                            <div class="text-muted">{{item.quantity}} x {{item.price}} ج.م</div>
+                        </div>
+                    </div>
+                    <div class="order-list-text d-flex align-items-center gap-4">
+                        <div>
+                            <div class="main-color fw-bold fs-6">{{item.totalValue}} ج.م</div>
+                            <div class="fw-bold text-muted fs-6">{{item.quantity}} الكمية</div>
+                        </div>
+                        <i *ngIf="item.addonItemId != 0" (click)="removeItem(item,i)" class="fas fa-times-circle delete-order-list-item-btn cursor-pointer fs-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="modal-footer justify-content-start">
-        <button type="button" class="btn btn-success" (click)="DeleteItem()">
-            <i class="fas fa-check"></i>
-            <span class="ms-2">نعم</span>
-        </button>
-        <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">
+        <button class="btn btn-danger" (click)="modal.dismiss()">
             <i class="fas fa-times"></i>
-            <span class="ms-2">لا</span>
+            <span class="ms-2">Close</span>
         </button>
     </div>
 </ng-template>
 
-<ng-template #SidePanel let-offcanvas>
-    <div class="offcanvas-header pb-0 d-flex align-items-center justify-content-between">
-        <div>
-            <h4 class="offcanvas-title m-0 d-flex align-items-center w-100"><i class="uil uil-document-info text-success"></i> {{OrderNumber}} - {{OrderDate| date:'dd/MM/yyyy, h:mm a'}}
-            </h4>
+<ng-template #notesModal let-modal>
+    <div class="modal-container-wrapper position-relative">
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">الملاحظات</h4>
         </div>
-        <button type="button" class="btn bg-danger text-white rounded" aria-label="Close" (click)="offcanvas.dismiss()">
+        <div class="modal-body">
+            <div class="d-flex mb-3">
+                <input type="text" class="form-control py-4 me-2" [(ngModel)]="NoteTxt" placeholder="اضافة ملاحظة" />
+            </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-primary me-2" (click)="modal.dismiss();saveOrderNotes()">
+                    <i class="fas fa-save"></i>
+                    <span class="ms-2">حفظ</span>
+                </button>
+                <button class="btn btn-warning me-2" (click)="clearAllNotes()">
+                    <i class="fas fa-trash"></i>
+                    <span class="ms-2">حذف</span>
+                </button>
+                <button class="btn btn-danger" (click)="modal.dismiss()">
+                    <i class="fas fa-times"></i>
+                    <span class="ms-2">اغلاق</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #selectTableModal let-modal>
+    <div class="modal-header justify-content-between">
+        <h4 class="d-flex align-items-center m-0">
+            <img src="debit-card.png" class="pay-img" alt="Cash-image" loading="lazy" />
+            <div class="ms-3">اختر طاولة</div>
+        </h4>
+        <button class="btn btn-danger" (click)="modal.dismiss()">
             <i class="fas fa-times"></i>
         </button>
     </div>
-    <div class="offcanvas-body pt-0">
-        <hr>
-        <div class="container pt-3">
-            <div class="card">
-                <div class="card-body card-body-h overflow-auto">
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle table-dark table-hover border shadow-lg bg-white m-0">
-                            <thead>
-                                <tr>
-                                    <th>العنصر</th>
-                                    <th>الفئة</th>
-                                    <th>الكمية</th>
-                                    <th>السعر</th>
-                                    <th>الإجمالي</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let item of SelectedProducts;let i = index">
-                                    <td>{{item.productName}}</td>
-                                    <td>{{item.categoryName}}</td>
-                                    <td>{{item.quantity}}</td>
-                                    <td>{{item.price}}</td>
-                                    <td>{{item.totalValue}} جنيه</td>
-                                </tr>
-                            </tbody>
-                            <tfoot *ngIf="SelectedProducts.length > 0">
-                                <tr>
-                                    <td class="text-end fw-bold">الإجمالي: </td>
-                                    <td colspan="5" class="fw-bold">{{TotalValue}} جنيه</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <div class="modal-body">
+        <div>
+            <app-order-table [isOrderMode]="true" (TableSelected)="getTableNumberSelected($event)"></app-order-table>
         </div>
     </div>
 </ng-template>

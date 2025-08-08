@@ -1,11 +1,11 @@
-import { NgFor, NgForOf } from '@angular/common';
+import { NgFor, NgForOf, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { AdminService } from '../../Services/admin.service';
 
 @Component({
   selector: 'app-admin-home',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor,NgIf],
   templateUrl: './admin-home.component.html',
   styleUrl: './admin-home.component.css'
 })

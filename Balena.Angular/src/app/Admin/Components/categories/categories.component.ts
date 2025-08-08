@@ -24,6 +24,7 @@ export class CategoriesComponent implements OnInit {
   ItemForm: FormGroup;
   Total = 0;
   CategoryId: any;
+  defaultImage = 'Balena_Logo-Black.png';
   ImageFile: any;
   Results: any[] = [];
   fileURL: any[] = [];

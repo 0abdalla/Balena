@@ -11,4 +11,10 @@ namespace Balena.Entities.Common
         Items = 0,
         Categories = 1
     }
+
+    public enum OrderStatus
+    {
+        Finished = 1,
+        Canceled = 2
+    }
 }

@@ -2,18 +2,24 @@
 using Balena.Entities.Contracts.DTOs.Orders;
 using Balena.Entities.Models;
 using Balena.Entities.Specifications.Admin.Orders;
+using Balena.Interfaces.Common;
 using Balena.Interfaces.Repositories;
 using Balena.Interfaces.SystemSettings;
 using Balena.Services.Common;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Balena.Services.SystemSettings
 {
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public OrderService(IUnitOfWork unitOfWork)
+        private readonly IAppSettings _appSettings;
+        private string ApiLocalUrl;
+        public OrderService(IUnitOfWork unitOfWork, IAppSettings appSettings)
         {
             _unitOfWork = unitOfWork;
+            _appSettings = appSettings;
+            ApiLocalUrl = _appSettings.ApiUrlLocal;
         }
 
         public async Task<ApiResponseModel<List<Order>>> GetAllOrders(PagingFilterModel Model)
@@ -25,17 +31,34 @@ namespace Balena.Services.SystemSettings
             return ApiResponseModel<List<Order>>.Success(GenericErrors.GetSuccess, results, Count);
         }
 
-        public async Task<ApiResponseModel<Order>> GetOrderDetailsByOrderId(int OrderId)
+        public async Task<ApiResponseModel<List<OrderDetailsResponse>>> GetOrderDetailsByOrderId(int OrderId)
         {
             var Spec = new OrderDetailsSpecification(OrderId);
             var results = await _unitOfWork.Repository<Order>().GetByIdWithSpecAsync(Spec);
-            return ApiResponseModel<Order>.Success(GenericErrors.GetSuccess, results);
+            var data = results.OrderDetails.Select(i => new OrderDetailsResponse
+            {
+                ProductId = i.Product.ProductId,
+                productName = i.Product.ProductName,
+                categoryName = i.Product.Category.CategoryName,
+                image = Path.Combine(ApiLocalUrl, "Images", ImageFiles.Items.ToString(), i.Product.Image ?? string.Empty),
+                price = i.Product.Price,
+                quantity = i.Quantity,
+                totalValue = i.Product.Price * i.Quantity,
+            }).ToList();
+            return ApiResponseModel<List<OrderDetailsResponse>>.Success(GenericErrors.GetSuccess, data);
         }
 
         public async Task<ApiResponseModel<string>> AddNewOrder(OrderWithDetailsDto dto)
         {
             try
             {
+                if (!string.IsNullOrEmpty(dto.TableNumber))
+                {
+                    var TableEntity = await _unitOfWork.Repository<OrderTable>().FirstOrDefaultAsync(i => i.TableNumber == dto.TableNumber);
+                    if (TableEntity != null)
+                        TableEntity.IsActive = false;
+                }
+
                 var Spec = new OrderNumberSpecification(DateTime.UtcNow);
                 var OrderNumber = await _unitOfWork.Repository<Order>().MaxAsync(i =>
                 i.OrderDate.Value.Year == DateTime.UtcNow.Year
@@ -45,10 +68,15 @@ namespace Balena.Services.SystemSettings
                 var order = new Order
                 {
                     CustomerId = dto.CustomerID,
-                    //EmployeeId = dto.UserId,
                     OrderDate = DateTime.UtcNow,
                     TotalAmount = dto.TotalAmount,
                     PaymentMethod = dto.PaymentMethod,
+                    StatusId = (int)dto.OrderStatus,
+                    Notes = dto.Notes,
+                    Tax = dto.Tax,
+                    InsertUser = dto.UserId,
+                    TableNumber = dto.TableNumber,
+                    InsertDate = DateTime.UtcNow,
                     OrderNumber = OrderNumber + 1
                 };
 
@@ -115,26 +143,29 @@ namespace Balena.Services.SystemSettings
 
         }
 
-        public async Task<ApiResponseModel<string>> DeleteOrder(int OrderId)
+        public async Task<ApiResponseModel<string>> CancelOrder(string VoidReason, string Action, string VoidNotes, int OrderId)
         {
             try
             {
-                var order = await _unitOfWork.Repository<Order>().GetByIdAsync(OrderId);
-                if (order != null)
+                var Order = await _unitOfWork.Repository<Order>().GetByIdAsync(OrderId);
+
+                if (Order != null)
                 {
-                    _unitOfWork.Repository<Order>().Delete(order);
-                    await _unitOfWork.Repository<OrderDetail>().DeleteWhereAsync(i => i.OrderId == OrderId);
+                    Order.VoidReason = VoidReason;
+                    Order.VoidNotes = VoidNotes;
+                    Order.Action = Action;
+
                     await _unitOfWork.CompleteAsync();
                     return ApiResponseModel<string>.Success(GenericErrors.DeleteSuccess);
                 }
 
                 return ApiResponseModel<string>.Failure(GenericErrors.NotFound);
-
             }
-            catch (Exception)
+            catch (Exception Ex)
             {
                 return ApiResponseModel<string>.Failure(GenericErrors.TransFailed);
             }
+
         }
     }
 }

@@ -6,14 +6,21 @@ using System.Collections.Generic;
 
 namespace Balena.Entities.Models;
 
-public partial class Order: AuditableEntity
+public partial class Order : AuditableEntity
 {
     public int OrderId { get; set; }
     public int? CustomerId { get; set; }
+    public int? StatusId { get; set; }
     public int OrderNumber { get; set; }
     public DateTime? OrderDate { get; set; }
     public decimal? TotalAmount { get; set; }
     public string PaymentMethod { get; set; }
+    public string Notes { get; set; }
+    public double Tax { get; set; }
+    public string TableNumber { get; set; }
+    public string VoidReason { get; set; }
+    public string VoidNotes { get; set; }
+    public string Action { get; set; }
     public Customer Customer { get; set; }
     public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 }

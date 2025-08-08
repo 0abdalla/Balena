@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { PagingFilterModel } from '../Models/General/PagingFilterModel';
 import { ApiResponseModel } from '../Models/General/ApiResponseModel';
 
@@ -69,8 +69,8 @@ export class AdminService {
     return this.http.post<ApiResponseModel<any>>(this.apiURL + 'Order/UpdateOrder', Model);
   }
 
-  DeleteOrder(OrderId: number) {
-    return this.http.get<ApiResponseModel<any>>(this.apiURL + 'Order/DeleteOrder?OrderId=' + OrderId);
+  CancelOrder(VoidReason: string, Action: string, VoidNotes: string, OrderId: number) {
+    return this.http.get<ApiResponseModel<any>>(this.apiURL + 'Order/CancelOrder?VoidReason=' + VoidReason + '&Action=' + Action + '&VoidNotes=' + VoidNotes + '&OrderId=' + OrderId);
   }
 
   // ============================= Auth ==============================
@@ -94,4 +94,27 @@ export class AdminService {
   DeleteUser(UserId: string) {
     return this.http.get<ApiResponseModel<any>>(this.apiURL + 'Auth/DeleteUser?UserId=' + UserId);
   }
+
+  // ============================= OrderTable ==============================
+
+  GetAllOrderTables(Model: PagingFilterModel) {
+    return this.http.post<ApiResponseModel<any[]>>(this.apiURL + 'OrderTable/GetAllOrderTables', Model);
+  }
+
+  AddNewOrderTable(Model: any) {
+    return this.http.post<ApiResponseModel<any>>(this.apiURL + 'OrderTable/AddNewOrderTable', Model);
+  }
+
+  UpdateOrderTable(Model: any) {
+    return this.http.post<ApiResponseModel<any>>(this.apiURL + 'OrderTable/UpdateOrderTable', Model);
+  }
+
+  DeleteOrderTable(TableId: number) {
+    return this.http.get<ApiResponseModel<any>>(this.apiURL + 'OrderTable/DeleteOrderTable?TableId=' + TableId);
+  }
+
+  FinishOrderTable(TableId: number) {
+    return this.http.get<ApiResponseModel<any>>(this.apiURL + 'OrderTable/FinishOrderTable?TableId=' + TableId);
+  }
+
 }

@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Contracts\DTOs\Orders\" />
     <Folder Include="Contracts\Requests\" />
   </ItemGroup>
 

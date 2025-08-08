@@ -1,0 +1,197 @@
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <button class="btn main-button d-flex align-items-center gap-2">
+                <i class="uil uil-plus-circle"></i>
+                <span class="navbar-brand m-0">اضافة</span>
+            </button>
+            <button class="btn main-button d-flex align-items-center gap-2" (click)="isFilter = !isFilter" [attr.aria-expanded]="!isFilter">
+                <i class="uil uil-filter"></i>
+                <span class="navbar-brand m-0">{{ isFilter ? 'عرض' : 'اخفاء' }} الفلاتر</span>
+            </button>
+        </div>
+        <div>
+            <app-admin-pagination [currentPage]="PagingFilter.currentpage" [pageSize]="PagingFilter.pagesize" [totalPages]="0" [totalCount]="Total" (pageChanged)="PageChange($event)"></app-admin-pagination>
+        </div>
+    </div>
+    <div class="px-3 py-2 bg-light border-bottom" #collapse="ngbCollapse" [(ngbCollapse)]="isFilter">
+        <app-admin-filters [PlaceHolder]="'برقم الطلب'" (FilterChecked)="FilterChecked($event)"></app-admin-filters>
+    </div>
+    <div class="card-body card-body-h">
+        <div class="table-responsive mb-2">
+            <table class="table table-bordered align-middle table-dark table-hover border shadow-lg bg-white m-0">
+                <thead>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <th>الحالة</th>
+                        <th>تاريخ الطلب</th>
+                        <th>الإجمالي</th>
+                        <th>نوع الدفع</th>
+                        <th class="text-center">أجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of Results">
+                        <td>{{item.orderNumber}}</td>
+                        <td>
+                            <span *ngIf="Lang == 'ar'" class="badge rounded-pill default p-2 text-uppercase px-3" [ngClass]="getStatusColor(order.orderStatus)">{{order.orderStatusNameAr}}
+                                </span>
+                        </td>
+                        <td>{{item.orderDate | date:'dd/MM/yyyy, h:mm a'}}</td>
+                        <td>{{item.totalAmount}} جنيه</td>
+                        <td>كاش</td>
+                        <td>
+                            <div class="d-flex align-items-center justify-content-center fs-5 gap-2">
+                                <i class="uil uil-document-info text-success icon-table-action shadow-sm" (click)="openSidePanel(SidePanel,item)"></i>
+                                <i class="uil uil-times-circle text-danger icon-table-action shadow-sm" appRole [roles]="['SupperAdmin']" (click)="openDeleteItemModal(deleteItemModal,item)"></i>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <app-admin-pagination (pageChanged)="PagingFilter.currentpage = $event.page" [currentPage]="PagingFilter.currentpage" [pageSize]="PagingFilter.pagesize" [totalPages]="0" [totalCount]="Total"></app-admin-pagination>
+        </div>
+    </div>
+</div>
+
+
+<ng-template #deleteItemModal let-modal>
+    <div class="modal-header main-bgcolor text-white">
+        <div class="display-7 d-flex align-items-center gap-3">
+            <i class="uil uil-trash-alt"></i>
+            <span>أمر الغاء</span>
+        </div>
+    </div>
+    <div class="modal-body">
+        <form [formGroup]="ItemForm" autocomplete="off">
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" formControlName="voidReason" id="floatingInput_1" placeholder="new-user" required>
+                        <label for="floatingInput_1">سبب الالغاء</label>
+                        <div *ngIf="ItemForm.controls['voidReason']?.invalid && (ItemForm.controls['voidReason']?.dirty || ItemForm.controls['voidReason']?.touched)" class="text-danger pt-2">
+                            <div *ngIf="ItemForm.controls['voidReason'].errors?.['required']">
+                                هذا الحقل مطلوب
+                            </div>
+                            <div *ngIf="ItemForm.controls['voidReason'].errors?.['noSpace']">
+                                لا يمكن ان يحتوي الحقل على مسافات فقط
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" formControlName="action" id="floatingInput_1" placeholder="new-user">
+                        <label for="floatingInput_1">العملية</label>
+                        <div *ngIf="ItemForm.controls['action']?.invalid && (ItemForm.controls['action']?.dirty || ItemForm.controls['action']?.touched)" class="text-danger pt-2">
+                            <div *ngIf="ItemForm.controls['action'].errors?.['noSpace']">
+                                لا يمكن ان يحتوي الحقل على مسافات فقط
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" formControlName="voidNotes" id="floatingInput_1" placeholder="new-user">
+                        <label for="floatingInput_1">ملاحظات</label>
+                        <div *ngIf="ItemForm.controls['voidNotes']?.invalid && (ItemForm.controls['voidNotes']?.dirty || ItemForm.controls['voidNotes']?.touched)" class="text-danger pt-2">
+                            <div *ngIf="ItemForm.controls['voidNotes'].errors?.['noSpace']">
+                                لا يمكن ان يحتوي الحقل على مسافات فقط
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer justify-content-start gap-2">
+        <button type="submit" class="btn main-button d-flex align-items-center gap-2" (click)="CancelOrder()">
+            <i class="uil uil-plus-circle"></i>
+            <span>اضافه</span>
+        </button>
+        <button class="btn btn-danger rounded-25 d-flex align-items-center gap-2" (click)="modal.close()">
+            <i class="uil uil-times-circle"></i>
+            <span>الغاء</span>
+        </button>
+    </div>
+</ng-template>
+
+<ng-template #SidePanel let-offcanvas>
+    <div class="offcanvas-header pb-0 d-flex align-items-center justify-content-between">
+        <div>
+            <h4 class="offcanvas-title m-0 d-flex align-items-center w-100"><i class="uil uil-document-info text-success"></i> {{OrderNumber}} - {{OrderDate| date:'dd/MM/yyyy, h:mm a'}}
+            </h4>
+        </div>
+        <button type="button" class="btn bg-danger text-white rounded" aria-label="Close" (click)="offcanvas.dismiss()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="offcanvas-body pt-0">
+        <hr>
+        <div class="container pt-3">
+            <div class="card mb-2">
+                <div class="card-body card-body-h overflow-auto">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle table-dark table-hover border shadow-lg bg-white m-0">
+                            <thead>
+                                <tr>
+                                    <th class="th-width"></th>
+                                    <th>العنصر</th>
+                                    <th>الفئة</th>
+                                    <th>الكمية</th>
+                                    <th>السعر</th>
+                                    <th>الإجمالي</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of SelectedProducts;let i = index">
+                                    <td>
+                                        <img src="{{item.image}}" (error)="$event.target.src = defaultImage" class="table-image">
+                                    </td>
+                                    <td>{{item.productName}}</td>
+                                    <td>{{item.categoryName}}</td>
+                                    <td>{{item.quantity}}</td>
+                                    <td>{{item.price}}</td>
+                                    <td>{{item.totalValue}} جنيه</td>
+                                </tr>
+                            </tbody>
+                            <tfoot *ngIf="SelectedProducts.length > 0">
+                                <tr>
+                                    <td class="text-end fw-bold">الإجمالي: </td>
+                                    <td colspan="5" class="fw-bold">{{TotalValue}} جنيه</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card radius-10 border-0 card-shadow" *ngIf="Notes">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <h5 class="m-0 fw-bold">ملاحظات</h5>
+                        </div>
+                        <div class="col-lg-10  h-200">
+                            <input type="text" value="{{Notes}}" class="form-control me-2 min-height-70" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card radius-10 border-0 card-shadow mt-2" *ngIf="VoidReason">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <h5 class="m-0 fw-bold">سبب الإلغاء</h5>
+                        </div>
+                        <div class="col-lg-10  h-200">
+                            <input type="text" value='{{VoidReason}}' class="form-control me-2 min-height-70" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

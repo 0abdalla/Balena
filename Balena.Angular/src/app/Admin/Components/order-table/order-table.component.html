@@ -1,0 +1,138 @@
+<ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs square-tabs border-0 bg-white shadow-sm rounded p-2 mb-3">
+    <li [ngbNavItem]="1">
+        <a ngbNavLink>الكل</a>
+        <ng-template ngbNavContent>
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3" *ngIf="!isOrderMode">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <button class="btn main-button d-flex align-items-center gap-2" (click)="openAddItemModal(OpenItemModal,null)">
+                        <i class="uil uil-plus-circle"></i>
+                        <span class="navbar-brand m-0">اضافة</span>
+                </button>
+                </div>
+            </div>
+            <div class="row row-cols-1 row-cols-lg-6 gy-4 mb-5" style="min-height: 300px;">
+                <div class="col" *ngFor="let table of TablesList">
+                    <div class="table-card rounded shadow-sm p-4" [style]="getColor(table?.isActive)" [ngClass]="{'active': table.isSelected}" (click)="activeCard(table);openAddItemModal(OpenItemModal,table)">
+                        <div class="table-skelton d-flex align-items-center justify-content-center flex-column mx-auto p-4 rounded position-relative">
+                            <h6 class="fw-bold mb-1">{{ table.tableNumber }}</h6>
+                            <a style="text-decoration: none;" *ngIf="table?.orderNumber">#{{ table.orderNumber }}</a>
+                            <div class="t-line t-line-top"></div>
+                            <div class="t-line t-line-right"></div>
+                            <div class="t-line t-line-bottom"></div>
+                            <div class="t-line t-line-left"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" (click)="navigateToOrderPage()" *ngIf="isOrderMode">تنفيذ الأمر</button>
+        </ng-template>
+    </li>
+    <li [ngbNavItem]="2">
+        <a ngbNavLink>فارغة</a>
+        <ng-template ngbNavContent>
+            <div class="row row-cols-1 row-cols-lg-6 gy-4 mb-5" style="min-height: 300px;">
+                <div class="col" *ngFor="let table of VacantList">
+                    <div class="table-card rounded shadow-sm p-4" [style]="getColor(table?.isActive)" [ngClass]="{'active': table.isSelected}" (click)="activeCard(table)">
+                        <div class="table-skelton d-flex align-items-center justify-content-center flex-column mx-auto p-4 rounded position-relative">
+                            <h6 class="fw-bold mb-1">{{ table.tableNumber }}</h6>
+                            <a style="text-decoration: none;" *ngIf="table?.orderNumber">#{{ table.orderNumber }}</a>
+                            <div class="t-line t-line-top"></div>
+                            <div class="t-line t-line-right"></div>
+                            <div class="t-line t-line-bottom"></div>
+                            <div class="t-line t-line-left"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" (click)="navigateToOrderPage()" *ngIf="isOrderMode">تنفيذ الأمر</button>
+        </ng-template>
+    </li>
+    <li [ngbNavItem]="3">
+        <a ngbNavLink>مشغولة</a>
+        <ng-template ngbNavContent>
+            <div class="row row-cols-1 row-cols-lg-6 gy-4 mb-5" style="min-height: 300px;">
+                <div class="col" *ngFor="let table of OccupiedList">
+                    <div class="table-card rounded shadow-sm p-4" [style]="getColor(table?.isActive)" [ngClass]="{'active': table.isSelected}" (click)="activeCard(table)">
+                        <div class="table-skelton d-flex align-items-center justify-content-center flex-column mx-auto p-4 rounded position-relative">
+                            <h6 class="fw-bold mb-1">{{ table.tableNumber }}</h6>
+                            <a style="text-decoration: none;" *ngIf="table?.orderNumber">#{{ table.orderNumber }}</a>
+                            <div class="t-line t-line-top"></div>
+                            <div class="t-line t-line-right"></div>
+                            <div class="t-line t-line-bottom"></div>
+                            <div class="t-line t-line-left"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary me-1" (click)="FinishOrderTable()">إغلاق</button>
+        </ng-template>
+    </li>
+</ul>
+
+<div [ngbNavOutlet]="nav" class="mt-2"></div>
+
+
+<ng-template #OpenItemModal let-modal>
+    <div class="modal-header d-flex align-items-center justify-content-between main-bgcolor text-white">
+        <div class="display-7 d-flex align-items-center gap-3">
+            <i class="uil uil-focus-add"></i>
+            <span>املأ البيانات التالية</span>
+        </div>
+        <i class="fas fa-times cursor-pointer fa-2x modal-close-btn" (click)="modal.dismiss()"></i>
+    </div>
+    <div class="modal-body gray-bgcolor">
+        <div class="bg-white p-3 rounded shadow-sm">
+            <form [formGroup]="ItemForm" autocomplete="off">
+                <div class="row g-3">
+                    <div class="col-lg-12">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" formControlName="tableNumber" id="floatingInput_1" placeholder="new-user" required>
+                            <label for="floatingInput_1">الاسم</label>
+                            <div *ngIf="ItemForm.controls['tableNumber']?.invalid && (ItemForm.controls['tableNumber']?.dirty || ItemForm.controls['tableNumber']?.touched)" class="text-danger pt-2">
+                                <div *ngIf="ItemForm.controls['tableNumber'].errors?.['required']">
+                                    هذا الحقل مطلوب
+                                </div>
+                                <div *ngIf="ItemForm.controls['tableNumber'].errors?.['noSpace']">
+                                    لا يمكن ان يحتوي الحقل على مسافات فقط
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer justify-content-start gap-2">
+        <button type="submit" class="btn main-button d-flex align-items-center gap-2" (click)="AddNewItem()">
+            <i class="uil uil-plus-circle"></i>
+            <span>اضافه</span>
+        </button>
+        <button class="btn btn-danger rounded-25 d-flex align-items-center gap-2" (click)="modal.close()">
+            <i class="uil uil-times-circle"></i>
+            <span>الغاء</span>
+        </button>
+    </div>
+</ng-template>
+
+
+<ng-template #deleteItemModal let-modal>
+    <div class="modal-header main-bgcolor text-white">
+        <div class="display-7 d-flex align-items-center gap-3">
+            <i class="uil uil-trash-alt"></i>
+            <span>حذف عنصر</span>
+        </div>
+    </div>
+    <div class="modal-body">
+        <p class="fs-5 m-0">هل انت متأكد أنك تريد حذف هذا العنصر</p>
+    </div>
+    <div class="modal-footer justify-content-start">
+        <button type="button" class="btn btn-success" (click)="DeleteItem()">
+            <i class="fas fa-check"></i>
+            <span class="ms-2">نعم</span>
+        </button>
+        <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">
+            <i class="fas fa-times"></i>
+            <span class="ms-2">لا</span>
+        </button>
+    </div>
+</ng-template>

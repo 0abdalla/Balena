@@ -66,5 +66,9 @@ namespace Balena.Services.Common
         public static Error ApplySort = new("تم تطبيق الترتيب بنجاح");
 
         public static Error ChangeStatusSuccess = new("تم تغيير الحالة بنجاح");
+
+        public static Error TableNumberExist = new("رقم الطاولة موجود");
+
+        public static Error FinishOrderTable = new("تم إغلاق الطاولة بنجاح");
     }
 }

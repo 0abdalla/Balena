@@ -1,0 +1,26 @@
+.min-width-200 {
+    min-width: 200px;
+}
+
+.voidOrders {
+    background-color: #d20317;
+    color: white;
+}
+
+.active {
+    background-color: #dcaf5d;
+}
+
+.row-color {
+    background: #eecc78;
+}
+
+.finished {
+    background-color: rgb(23 160 14 / 0.11) !important;
+    color: #15ca20 !important;
+}
+
+.deleted {
+    background-color: rgba(255, 44, 7, 0.11) !important;
+    color: #ff0707 !important;
+}

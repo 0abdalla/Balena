@@ -68,7 +68,7 @@ export class AdminHeaderComponent {
   }
 
   @HostListener('document:mousedown', ['$event']) onClickOutside(event: Event) {
-    if (!this.autoCompleteWrapper.nativeElement.contains(event.target)) {
+    if (!this.autoCompleteWrapper?.nativeElement?.contains(event.target)) {
       this.showAutoCompleteMenu = false;
       this.isSearchOpen = false;
     } else {

@@ -28,13 +28,18 @@ export const AdminRoutes: Routes = [
                 canActivate:[authGuard]
             },
             {
-                path: 'create-order',
-                loadComponent: () => import('./create-order/create-order.component').then(m => m.CreateOrderComponent),
+                path: 'order-list',
+                loadComponent: () => import('./order-list/order-list.component').then(m => m.OrderListComponent),
                 canActivate:[authGuard]
             },
             {
                 path: 'create-user',
                 loadComponent: () => import('./admin-user/admin-user.component').then(m => m.AdminUserComponent),
+                canActivate:[authGuard]
+            },
+            {
+                path: 'order-table',
+                loadComponent: () => import('./order-table/order-table.component').then(m => m.OrderTableComponent),
                 canActivate:[authGuard]
             },
             { path: '', redirectTo: 'home', pathMatch: 'full' },

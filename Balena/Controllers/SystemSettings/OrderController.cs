@@ -25,7 +25,7 @@ namespace Balena.Controllers.SystemSettings
         }
 
         [HttpGet("GetOrderDetailsByOrderId")]
-        public async Task<ApiResponseModel<Order>> GetOrderDetailsByOrderId(int OrderId)
+        public async Task<ApiResponseModel<List<OrderDetailsResponse>>> GetOrderDetailsByOrderId(int OrderId)
         {
             var results = await _orderService.GetOrderDetailsByOrderId(OrderId);
             return results;
@@ -46,12 +46,11 @@ namespace Balena.Controllers.SystemSettings
 
         }
 
-        [HttpGet("DeleteOrder")]
-        public async Task<ApiResponseModel<string>> DeleteOrder(int OrderId)
+        [HttpGet("CancelOrder")]
+        public async Task<ApiResponseModel<string>> CancelOrder(string VoidReason, string Action, string VoidNotes, int OrderId)
         {
-            var results = await _orderService.DeleteOrder(OrderId);
+            var results = await _orderService.CancelOrder(VoidReason, Action, VoidNotes, OrderId);
             return results;
-
         }
     }
 }

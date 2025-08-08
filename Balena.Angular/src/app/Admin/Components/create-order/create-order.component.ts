@@ -1,275 +1,270 @@
-import { Component, OnInit } from '@angular/core';
-import { AdminPaginationComponent } from "../../Shared/admin-pagination/admin-pagination.component";
-import { PagingFilterModel } from '../../Models/General/PagingFilterModel';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgbCollapseModule, NgbDropdownModule, NgbModal, NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
-import { ValidationFormService } from '../../Services/validation-form.service';
+import { CommonModule, DOCUMENT, NgFor, NgIf } from '@angular/common';
+import { Component, Inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { AdminFiltersComponent } from "../../Shared/admin-filters/admin-filters.component";
-import { FilterModel } from '../../Models/General/FilterModel';
+import { SearchArryPipe } from '../../Pipes/search-arry.pipe';
 import { AdminService } from '../../Services/admin.service';
-import { RoleCheckerDirective } from '../../Directives/role-checker.directive';
+import { PagingFilterModel } from '../../Models/General/PagingFilterModel';
+import { OrderTableComponent } from '../order-table/order-table.component';
 
 @Component({
   selector: 'app-create-order',
-  imports: [AdminPaginationComponent, NgFor, NgIf, AdminFiltersComponent, 
-    NgbCollapseModule, ReactiveFormsModule, NgbDropdownModule, CommonModule,RoleCheckerDirective],
+  imports: [SearchArryPipe, RouterLink, NgFor, NgIf, FormsModule, CommonModule,OrderTableComponent],
   templateUrl: './create-order.component.html',
   styleUrl: './create-order.component.css'
 })
 export class CreateOrderComponent implements OnInit {
-  UserModel: any;
-  isFilter = false;
-  showLoader = false;
-  ItemForm: FormGroup;
-  Total = 0;
-  CategoryId: any;
-  ProductId: any;
+  orderModel = {} as any;
+  foodItemsList: any[] = [];
+  selectedFoodItems: any[] = [];
+  addSelectedFoodItem: any;
+  categoriesList: any[] = [];
+  showLoader: boolean = false;
+  isOrderCatOpen = false;
+  fullscreenMode = false;
+  activeCat = null;
   OrderId: any;
-  Results: any[] = [];
-  Categories: any[] = [];
-  Products: any[] = [];
-  SelectedProducts: any[] = [];
-  ProductPrice = 0;
-  TotalValue = 0;
-  CategoryName = 'اختر فئة';
-  ProductName = 'اختر عنصر';
-  CategoryValidation = false;
-  ProductValidation = false;
+  NoteTxt = '';
+  defaultImage = 'Balena_Logo-Black.png';
+  keys: any[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+  UserModel: any;
+  cashAmount = '';
+  amountPaid = '';
+  remaining = 0;
+  CurrentTime: any;
+  ele: any;
+  QtyFoodItemInputCounter: any;
   CategoryPagingFilter: PagingFilterModel = {
     filterList: [],
     currentpage: 1,
-    pagesize: 500
-  }
-  PagingFilter: PagingFilterModel = {
-    filterList: [],
-    currentpage: 1,
-    pagesize: 10
+    pagesize: 100
   }
 
 
-  constructor(private modalService: NgbModal, private adminService: AdminService,
-    private formService: ValidationFormService, private offcanvasService: NgbOffcanvas,
-    private fb: FormBuilder, private toaster: ToastrService) {
-
-  }
+  constructor(private adminService: AdminService, private toaster: ToastrService, private modalService: NgbModal, private route: ActivatedRoute,
+    @Inject(DOCUMENT) private document: any
+  ) { }
 
   ngOnInit(): void {
+    this.ele = document.documentElement;
     this.UserModel = JSON.parse(localStorage.getItem('UserModel'));
+    this.orderModel.totalValue = 0;
+    this.GetCurrentTime();
     this.GetAllCategories();
-    this.GetAllOrders();
-    this.FormInit();
   }
 
-  FormInit() {
-    this.ItemForm = this.fb.group({
-      quantity: ['', [Validators.required]]
-    });
+  openExpandModal(content: any) {
+    this.modalService.open(content, { size: 'lg', centered: true, scrollable: true })
   }
 
-  FillEditForm(item: any) {
-    this.OrderId = item.orderId;
-    this.GetOrderDetailsByOrderId();
+  openNotesModal(content: any) {
+    this.modalService.open(content, { size: 'lg', centered: true, scrollable: true })
   }
 
-  ResetForm() {
-    this.ItemForm.reset();
-    this.CategoryId = null;
-    this.ProductId = null;
-    this.CategoryName = 'اختر فئة';
-    this.ProductName = 'اختر عنصر';
-    this.Products = [];
-    this.CategoryValidation = false;
-    this.ProductValidation = false;
-    // this.ItemForm.get('InsertUser').setValue(this.UserModel?.userId);
-  }
-  OrderNumber: any;
-  OrderDate: any;
-
-  openSidePanel(content: any, item: any) {
-    this.OrderId = item.orderId;
-    this.OrderNumber = item.orderNumber;
-    this.OrderDate = item.orderDate;
-    this.GetOrderDetailsByOrderId();
-    this.offcanvasService.open(content, { position: 'end' });
+  openPayModal(content: any) {
+    this.amountPaid = '';
+    this.remaining = 0;
+    this.modalService.open(content, { size: 'md', centered: true, scrollable: true });
   }
 
-  openAddItemModal(content: any, item: any) {
-    this.SelectedProducts = [];
-    this.OrderId = null;
-    this.ResetForm();
-    if (item)
-      this.FillEditForm(item);
-
-    this.modalService.open(content, {
-      size: 'xl',
-      scrollable: true,
-      centered: true
-    });
+  openTableModal(content: any){
+    this.modalService.open(content, { size: 'xl', centered: true, scrollable: true })
   }
 
-  openDeleteItemModal(content: any, item: any) {
-    this.OrderId = item.orderId;
-    this.modalService.open(content, {
-      size: 'md',
-      scrollable: true,
-      centered: true
-    });
+  onClickFoodItem(item: any, content: any) {
+    if (item.offerPrice != null)
+      item.price = item.offerPrice;
+
+    this.addSelectedFoodItem = item;
+    this.addSelectedFoodItem.masterQuantity = 1
+    this.modalService.open(content, { size: 'md', centered: true, scrollable: true });
   }
 
-  onCategoryClicked(item: any) {
-    this.CategoryId = item.categoryId;
-    this.CategoryName = item.categoryName;
-    this.CategoryValidation = false;
-    this.ProductId = null;
-    this.ProductName = 'اختر عنصر';
-    this.ItemForm.patchValue({ quantity: null });
-    this.Products = [];
-    this.GetAllProducts();
-  }
-
-  onProductClicked(item: any) {
-    this.ProductId = item.productId;
-    this.ProductName = item.productName;
-    this.ProductPrice = item.price;
-    this.ProductValidation = false;
+  GetCurrentTime() {
+    let intervalClock = setInterval(() => {
+      let Time = new Date();
+      this.CurrentTime = Time.getHours() + ':' + (Time.getMinutes() < 10 ? '0' : '') + Time.getMinutes()
+    }, 1000);
   }
 
   GetAllCategories() {
-    this.adminService.GetAllCategories(this.CategoryPagingFilter).subscribe(data => {
-      this.Categories = data.results;
+    this.showLoader = true;
+    this.adminService.GetAllCategories(this.CategoryPagingFilter).subscribe((data) => {
+      this.categoriesList = data.results;
     });
   }
 
-  GetAllProducts() {
-    this.adminService.GetProductsByCategoryId(this.CategoryId).subscribe(data => {
-      this.Products = data.results;
+  GetProductsByCategoryId(CategoryId: any) {
+    this.adminService.GetProductsByCategoryId(CategoryId).subscribe(data => {
+      this.foodItemsList = data.results;
     });
   }
 
-  GetOrderDetailsByOrderId() {
-    this.adminService.GetOrderDetailsByOrderId(this.OrderId).subscribe(data => {
-      this.SelectedProducts = data.results.orderDetails.map(i => {
-        return {
-          productId: i.product.productId,
-          productName: i.product.productName,
-          categoryName: i.product.category.categoryName,
-          quantity: i.quantity,
-          price: i.product.price,
-          totalValue: i.product.price * Number(i.quantity)
-        }
-      });
-      this.TotalValue = this.SelectedProducts.reduce((sum, item) => sum + (item.totalValue || 0), 0);
-    })
-  }
-
-  GetAllOrders() {
-    this.adminService.GetAllOrders(this.PagingFilter).subscribe(data => {
-      this.Results = data.results;
-    });
-  }
-
-  PageChange(obj: any) {
-    this.PagingFilter.currentpage = obj.page;
-    this.GetAllOrders();
-  }
-
-  FilterChecked(filterList: FilterModel[]) {
-    this.PagingFilter.filterList = filterList;
-    this.GetAllOrders();
-  }
-
-  AddNewItem() {
-    let quantity = this.ItemForm.value.quantity;
-    let isValid = this.ItemForm.valid;
-    this.CategoryValidation = !this.CategoryId;
-    this.ProductValidation = !this.ProductId;
-    if (!isValid || this.CategoryValidation || this.ProductValidation) {
-      this.formService.validateAllFormFields(this.ItemForm);
-      return;
+  changeMasterItemQuantity(quantity: number, item: any) {
+    item.masterQuantity = parseInt(item.masterQuantity) + quantity;
+    if (item.masterQuantity == 0) {
+      item.masterQuantity = 1;
     }
+  }
 
-    let obj = {
-      productId: this.ProductId,
-      productName: this.ProductName,
-      categoryName: this.CategoryName,
-      quantity: quantity,
-      price: this.ProductPrice,
-      totalValue: this.ProductPrice * Number(quantity)
-    };
-    let checked = this.SelectedProducts.find(i => i.productId == this.ProductId)
-    if (!checked) {
-      this.SelectedProducts.push(obj);
-      this.TotalValue = this.SelectedProducts.reduce((sum, item) => sum + (item.totalValue || 0), 0);
-      this.ResetForm();
+  GetItemQuantityNumbers(key: any) {
+    if (key == 'C') {
+      this.addSelectedFoodItem.masterQuantity = '1';
+      this.QtyFoodItemInputCounter = 0;
+    }
+    else {
+      if (this.QtyFoodItemInputCounter == 0)
+        this.addSelectedFoodItem.masterQuantity = key;
+      else
+        this.addSelectedFoodItem.masterQuantity = this.addSelectedFoodItem.masterQuantity + key;
+
+      this.QtyFoodItemInputCounter = this.QtyFoodItemInputCounter + 1;
+    }
+  }
+
+  createMasterItems() {
+    if (this.addSelectedFoodItem.masterQuantity && this.addSelectedFoodItem.masterQuantity > 0) {
+      let obj = {
+        productId: this.addSelectedFoodItem.productId,
+        productName: this.addSelectedFoodItem.productName,
+        image: this.addSelectedFoodItem.image,
+        quantity: this.addSelectedFoodItem.masterQuantity,
+        price: this.addSelectedFoodItem.price,
+        totalValue: this.addSelectedFoodItem.price * Number(this.addSelectedFoodItem.masterQuantity)
+      };
+      this.selectedFoodItems.push(obj);
+      this.calculateOrderSummary();
+      this.modalService.dismissAll();
     }
     else
-      this.toaster.warning('هذا العنصر موجود');
+      this.toaster.error('Please Insert Quantity');
   }
 
-  RemoveItem(index: number) {
-    this.SelectedProducts.splice(index, 1);
-    this.TotalValue = this.SelectedProducts.reduce((sum, item) => sum + (item.totalValue || 0), 0);
+  removeItem(index: number) {
+    this.selectedFoodItems.splice(index, 1);
+    this.calculateOrderSummary();
   }
 
-  AddNewOrder() {
+  saveOrderNotes() {
+    this.orderModel.notes = this.NoteTxt;
+  }
+
+  clearAllNotes() {
+    this.NoteTxt = '';
+  }
+
+  calculateOrderSummary() {
+    this.orderModel.totalValue = 0;
+    this.selectedFoodItems.map(item => {
+      this.orderModel.totalValue += item.totalValue;
+    });
+  }
+
+  onAmountPaidChange() {
+    if (this.cashAmount)
+      this.remaining = Number(this.cashAmount) - this.orderModel.totalValue;
+    else
+      this.remaining = 0;
+  }
+
+  NumbersOnly(key: any): boolean {
+    let patt = /^([0-9\+])$/;
+    let result = patt.test(key);
+    return result;
+  }
+
+  GetPayInputNumbers(key: any) {
+    if (key == 'C')
+      this.cashAmount = '';
+    else
+      this.cashAmount = this.cashAmount + key;
+    this.onAmountPaidChange()
+  }
+
+  getTableNumberSelected(tableNumber: any) {
     debugger;
-    if (this.SelectedProducts.length == 0) {
+    this.orderModel.tableNumber = tableNumber;
+    this.modalService.dismissAll();
+  }
+
+  toggleFullscreenWindow() {
+    this.fullscreenMode = !this.fullscreenMode;
+    if (this.fullscreenMode) {
+      if (this.ele.requestFullscreen) {
+        this.ele.requestFullscreen();
+      } else if (this.ele.mozRequestFullScreen) {
+        this.ele.mozRequestFullScreen();
+      } else if (this.ele.webkitRequestFullscreen) {
+        this.ele.webkitRequestFullscreen();
+      } else if (this.ele.msRequestFullscreen) {
+        this.ele.msRequestFullscreen();
+      }
+    } else {
+      if (this.document.exitFullscreen) {
+        this.document.exitFullscreen();
+      } else if (this.document.mozCancelFullScreen) {
+        this.document.mozCancelFullScreen();
+      } else if (this.document.webkitExitFullscreen) {
+        this.document.webkitExitFullscreen();
+      } else if (this.document.msExitFullscreen) {
+        this.document.msExitFullscreen();
+      }
+    }
+  }
+
+  resetOrderModel() {
+    this.orderModel = {};
+    this.selectedFoodItems = [];
+    this.foodItemsList = [];
+    this.orderModel.totalValue = 0;
+    this.cashAmount = '';
+    this.amountPaid = '';
+    this.NoteTxt = '';
+    this.remaining = 0;
+  }
+
+  createOrder() {
+    if (this.selectedFoodItems.length == 0) {
       this.toaster.warning('برجاء اضافة عنصر واحد على الأقل');
       return;
     }
 
-    let orderObj = {
-      orderId: this.OrderId,
-      customerID: null,
-      totalAmount: this.TotalValue,
-      paymentMethod: 'Cash',
-      userId: this.UserModel?.userId,
-      details: this.SelectedProducts.map(i => {
-        return {
-          ProductID: i.productId,
-          quantity: i.quantity,
-          unitPrice: i.totalValue,
-        }
-      })
-    }
+    this.orderModel.customerID = null;
+    this.orderModel.totalAmount = this.orderModel.totalValue;
+    this.orderModel.tax = 0;
+    this.orderModel.paymentMethod = 'Cash';
+    this.orderModel.userId = this.UserModel?.userId;
+    this.orderModel.details = this.selectedFoodItems.map(i => {
+      return {
+        ProductID: i.productId,
+        quantity: i.quantity,
+        unitPrice: i.totalValue,
+      }
+    });
+
+
     if (!this.OrderId) {
-      this.adminService.AddNewOrder(orderObj).subscribe(data => {
+      this.adminService.AddNewOrder(this.orderModel).subscribe(data => {
         if (data.isSuccess) {
           this.toaster.success(data.message);
-          this.GetAllOrders();
+          this.resetOrderModel();
           this.modalService.dismissAll();
         }
         else
           this.toaster.error(data.message);
-        this.showLoader = false;
       });
     } else {
-      this.adminService.UpdateOrder(orderObj).subscribe(data => {
+      this.adminService.UpdateOrder(this.orderModel).subscribe(data => {
         if (data.isSuccess) {
           this.toaster.success(data.message);
-          this.GetAllOrders();
+          this.resetOrderModel();
           this.modalService.dismissAll();
         }
         else
           this.toaster.error(data.message);
-        this.showLoader = false;
       });
     }
-  }
-
-  DeleteItem() {
-    this.showLoader = true;
-    this.adminService.DeleteOrder(this.OrderId).subscribe(data => {
-      if (data.isSuccess) {
-        this.toaster.success(data.message);
-        this.GetAllOrders();
-        this.modalService.dismissAll();
-      }
-      else
-        this.toaster.error(data.message);
-      this.showLoader = false;
-    });
   }
 }

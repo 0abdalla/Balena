@@ -12,9 +12,9 @@ namespace Balena.Interfaces.SystemSettings
     public interface IOrderService
     {
         Task<ApiResponseModel<List<Order>>> GetAllOrders(PagingFilterModel Model);
-        Task<ApiResponseModel<Order>> GetOrderDetailsByOrderId(int OrderId);
+        Task<ApiResponseModel<List<OrderDetailsResponse>>> GetOrderDetailsByOrderId(int OrderId);
         Task<ApiResponseModel<string>> AddNewOrder(OrderWithDetailsDto dto);
         Task<ApiResponseModel<string>> UpdateOrder(OrderWithDetailsDto order);
-        Task<ApiResponseModel<string>> DeleteOrder(int OrderId);
+        Task<ApiResponseModel<string>> CancelOrder(string VoidReason, string Action, string VoidNotes, int OrderId);
     }
 }

@@ -14,6 +14,7 @@
     --background-body: #f3f3f3;
     --white-color: #FFF;
     --light-gray: #f9f9f9;
+    --main-bg: rgb(13 110 253 / 0.12);
     /* HEIGHTS */
     --header_height: 70px;
     --carousel_height: calc(100vh - var(--header_height));
@@ -1053,6 +1054,59 @@ select {
 
 .offcanvas-sub-header {
     font-size: 1.1rem;
+}
+
+.modal-counter {
+    display: flex;
+    flex-wrap: nowrap;
+    max-width: 165px;
+}
+
+.modal-counter.size-lg {
+    max-width: 200px;
+}
+
+.modal-counter .counter-action {
+    --counter-action-dimension: 40px;
+    display: grid;
+    place-content: center;
+    width: var(--counter-action-dimension);
+    min-width: var(--counter-action-dimension);
+    height: var(--counter-action-dimension);
+    min-height: var(--counter-action-dimension);
+    border: 2px solid #eee;
+    cursor: pointer;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+    transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+}
+
+.modal-counter.size-lg .counter-action {
+    --counter-action-dimension: 50px;
+    width: var(--counter-action-dimension);
+    height: var(--counter-action-dimension);
+}
+
+.modal-counter .counter-action:hover {
+    border-color: var(--main-color);
+    color: var(--main-color);
+}
+
+.modal-counter .counter-input {
+    text-align: center;
+    border: 0;
+    background-color: transparent;
+}
+
+.modal-counter.size-lg .counter-input {
+    font-size: 1.75rem !important;
 }
 
 

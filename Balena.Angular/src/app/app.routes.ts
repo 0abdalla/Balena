@@ -10,5 +10,9 @@ export const routes: Routes = [
         path: 'not-authorized',
         loadComponent: () => import('./Auth/not-authorized/not-authorized.component').then(m => m.NotAuthorizedComponent)
     },
+    {
+        path: 'create-order',
+        loadComponent: () => import('./Admin/Components/create-order/create-order.component').then(m => m.CreateOrderComponent)
+    },
     ...AdminRoutes
 ];
