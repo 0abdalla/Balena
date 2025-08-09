@@ -94,7 +94,8 @@ input[type="checkbox"] {
     --dim: 100px;
     width: var(--dim);
     height: var(--dim);
-    margin-top: -15px;
+    margin-top: 6px;
+    border-radius: 34px;
 }
 
 .form-title .form-title-text::before {

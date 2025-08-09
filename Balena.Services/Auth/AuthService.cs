@@ -221,6 +221,31 @@ namespace Balena.Services.Auth
             return addResult.Succeeded;
         }
 
+        public async Task<ApiResponseModel<string>> EditUserPassword(string UserId,string Password)
+        {
+           
+                var user = await _userManager.FindByIdAsync(UserId);
+                if (user == null)
+                {
+                    return ApiResponseModel<string>.Failure(GenericErrors.UserNotFound);
+                }
+
+
+                if (!string.IsNullOrWhiteSpace(Password))
+                {
+                    var removePassResult = await _userManager.RemovePasswordAsync(user);
+                    if (!removePassResult.Succeeded)
+                        return ApiResponseModel<string>.Failure(GenericErrors.DeletePassFailed);
+
+                    var addPassResult = await _userManager.AddPasswordAsync(user, Password);
+                    if (!addPassResult.Succeeded)
+                        return ApiResponseModel<string>.Failure(GenericErrors.NewPassFailed);
+                }
+
+            return ApiResponseModel<string>.Failure(GenericErrors.NewPassFailed);
+        }
+            
+
         public async Task<object> GetStatisticsHome()
         {
             var OrdersCount = await _unitOfWork.Repository<Order>().CountAsync();

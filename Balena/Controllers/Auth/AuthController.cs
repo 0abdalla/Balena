@@ -65,6 +65,14 @@ namespace Balena.Controllers.Auth
             return results;
         }
 
+        [HttpPost]
+        [Route("EditUserPassword")]
+        public async Task<ApiResponseModel<string>> EditUserPassword(string UserId, string Password)
+        {
+            var results = await _authService.EditUserPassword(UserId, Password);
+            return results;
+        }
+
         [HttpGet]
         [Route("GetStatisticsHome")]
         public async Task<object> GetStatisticsHome()
